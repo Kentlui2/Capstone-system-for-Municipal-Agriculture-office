@@ -1,0 +1,74 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\UpdateUserRequest;
+use App\Models\User;
+use Illuminate\Http\RedirectResponse;
+use Inertia\Inertia;
+use Inertia\Response;
+
+class UserAccountController extends Controller
+{
+    /**
+     * List all user accounts — Admin only, enforced via UserPolicy.
+     */
+    public function index(): Response
+    {
+        $this->authorize('viewAny', User::class);
+
+        $users = User::orderByRaw("
+            CASE status
+                WHEN 'pending' THEN 1
+                WHEN 'approved' THEN 2
+                WHEN 'rejected' THEN 3
+            END
+        ")
+            ->orderBy('name')
+            ->get(['id', 'name', 'email', 'role', 'status', 'created_at']);
+
+        return Inertia::render('UserAccounts/Index', [
+            'users' => $users,
+        ]);
+    }
+
+    /**
+     * Show a single user account's details — Admin only.
+     */
+    public function show(User $user): Response
+    {
+        $this->authorize('view', $user);
+
+        return Inertia::render('UserAccounts/Show', [
+            'user' => $user,
+        ]);
+    }
+
+    /**
+     * Update a user's role and/or approval status.
+     * Validation + authorization both handled in UpdateUserRequest.
+     */
+    public function update(UpdateUserRequest $request, User $user): RedirectResponse
+    {
+        $user->update($request->validated());
+
+        return redirect()
+            ->route('user-accounts.index')
+            ->with('success', "{$user->name}'s account has been updated.");
+    }
+
+    /**
+     * Delete a user account — Admin only, cannot delete self
+     * (enforced in UserPolicy).
+     */
+    public function destroy(User $user): RedirectResponse
+    {
+        $this->authorize('delete', $user);
+
+        $user->delete();
+
+        return redirect()
+            ->route('user-accounts.index')
+            ->with('success', "{$user->name}'s account has been removed.");
+    }
+}
