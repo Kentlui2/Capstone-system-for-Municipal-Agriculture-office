@@ -1,4 +1,5 @@
 <?php
+use App\Http\Controllers\CommodityController;
 use App\Http\Controllers\BeneficiaryProfileController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserAccountController;
@@ -29,7 +30,9 @@ Route::middleware('auth')->group(function () {
         ->except(['create', 'store', 'edit']); // no manual creation — self-registration only
 
     Route::resource('profiles', BeneficiaryProfileController::class);
-
+    
+    Route::resource('commodities', CommodityController::class)
+        ->except(['create', 'show', 'edit']); // inline add/edit on the index page, no separate pages
 });
 
 require __DIR__.'/auth.php';

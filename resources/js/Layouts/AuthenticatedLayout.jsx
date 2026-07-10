@@ -11,6 +11,8 @@ export default function AuthenticatedLayout({ header, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
 
+    const { flash } = usePage().props;
+
     return (
         <div className="min-h-screen bg-gray-100">
             <nav className="border-b border-gray-100 bg-white">
@@ -35,6 +37,12 @@ export default function AuthenticatedLayout({ header, children }) {
                                     active={route().current('profiles.*')}
                                 >
                                     Profiles
+                                </NavLink>
+                                <NavLink
+                                    href={route('commodities.index')}
+                                    active={route().current('commodities.*')}
+                                >
+                                    Commodities
                                 </NavLink>
                                 {user.role === 'admin' && (
                                     <NavLink
@@ -156,6 +164,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             >
                                 User Accounts
                             </ResponsiveNavLink>
+
                         )}
                     </div>
 
@@ -191,6 +200,22 @@ export default function AuthenticatedLayout({ header, children }) {
                         {header}
                     </div>
                 </header>
+            )}
+
+            {flash.success && (
+                <div className="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8">
+                    <div className="rounded bg-green-50 p-4 text-sm text-green-800">
+                        {flash.success}
+                    </div>
+                </div>
+            )}
+
+            {flash.error && (
+                <div className="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8">
+                    <div className="rounded bg-red-50 p-4 text-sm text-red-800">
+                        {flash.error}
+                    </div>
+                </div>
             )}
 
             <main>{children}</main>

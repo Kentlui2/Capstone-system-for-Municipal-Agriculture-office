@@ -50,13 +50,22 @@ class UserAccountController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
-        $user->update($request->validated());
+        $validated = $request->validated();
+
+        $user->update($validated);
+
+        $messages = [
+            'approved' => "{$user->name}'s account has been approved.",
+            'rejected' => "{$user->name}'s account has been rejected.",
+            'pending' => "{$user->name}'s account status set back to pending.",
+        ];
+
+        $flashType = $validated['status'] === 'rejected' ? 'error' : 'success';
 
         return redirect()
             ->route('user-accounts.index')
-            ->with('success', "{$user->name}'s account has been updated.");
+            ->with($flashType, $messages[$validated['status']]);
     }
-
     /**
      * Delete a user account — Admin only, cannot delete self
      * (enforced in UserPolicy).
