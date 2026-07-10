@@ -2,6 +2,7 @@
 use App\Http\Controllers\CommodityController;
 use App\Http\Controllers\BeneficiaryProfileController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\AidDistributionController;
 use App\Http\Controllers\UserAccountController;
 use Illuminate\Foundation\Application;
 use App\Http\Controllers\AidProgramController;
@@ -37,6 +38,10 @@ Route::middleware('auth')->group(function () {
     
     Route::resource('aid-programs', AidProgramController::class)
         ->except(['create', 'show', 'edit']);
+    
+    Route::resource('aid-distributions', AidDistributionController::class)
+        ->only(['index', 'create', 'store', 'show']); // permanent records — no edit/update/destroy
+
 });
 
 require __DIR__.'/auth.php';
