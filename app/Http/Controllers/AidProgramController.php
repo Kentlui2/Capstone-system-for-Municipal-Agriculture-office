@@ -1,0 +1,81 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\StoreAidProgramRequest;
+use App\Http\Requests\UpdateAidProgramRequest;
+use App\Models\AidProgram;
+use Illuminate\Http\RedirectResponse;
+use Inertia\Inertia;
+use Inertia\Response;
+
+class AidProgramController extends Controller
+{
+    /**
+     * List all aid programs — both roles can view (Encoders need
+     * this to select a program when recording distributions).
+     */
+    public function index(): Response
+    {
+        $this->authorize('viewAny', AidProgram::class);
+
+        $programs = AidProgram::orderBy('status')
+            ->orderBy('name')
+            ->get();
+
+        return Inertia::render('AidPrograms/Index', [
+            'programs' => $programs,
+        ]);
+    }
+
+    /**
+     * Store a new aid program — Admin only.
+     */
+    public function store(StoreAidProgramRequest $request): RedirectResponse
+    {
+        AidProgram::create([
+            ...$request->validated(),
+            'created_by' => $request->user()->id,
+        ]);
+
+        return redirect()
+            ->route('aid-programs.index')
+            ->with('success', 'Aid program created successfully.');
+    }
+
+    /**
+     * Update an existing aid program — Admin only.
+     */
+    public function update(UpdateAidProgramRequest $request, AidProgram $aidProgram): RedirectResponse
+    {
+        $aidProgram->update($request->validated());
+
+        return redirect()
+            ->route('aid-programs.index')
+            ->with('success', 'Aid program updated successfully.');
+    }
+
+    /**
+     * Delete an aid program — Admin only.
+     *
+     * Blocked if any distributions already exist under this program,
+     * same safety pattern as Commodity deletion — preserves aid
+     * history rather than allowing it to be silently orphaned.
+     */
+    public function destroy(AidProgram $aidProgram): RedirectResponse
+    {
+        $this->authorize('delete', $aidProgram);
+
+        if ($aidProgram->distributions()->exists()) {
+            return redirect()
+                ->route('aid-programs.index')
+                ->with('error', "Cannot delete \"{$aidProgram->name}\" — it already has recorded distributions. Close the program instead.");
+        }
+
+        $aidProgram->delete();
+
+        return redirect()
+            ->route('aid-programs.index')
+            ->with('success', 'Aid program removed successfully.');
+    }
+}

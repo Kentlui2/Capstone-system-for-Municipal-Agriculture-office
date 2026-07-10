@@ -22,6 +22,8 @@ class AidProgram extends Model
         'created_by',
     ];
 
+    protected $appends = ['remaining_quantity', 'utilization_rate'];
+
     protected function casts(): array
     {
         return [

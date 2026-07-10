@@ -44,6 +44,11 @@ export default function AuthenticatedLayout({ header, children }) {
                                 >
                                     Commodities
                                 </NavLink>
+                                <NavLink href={route('aid-programs.index')}
+                                    active={route().current('aid-programs.*')}
+                                >
+                                    Aid Programs
+                                </NavLink>
                                 {user.role === 'admin' && (
                                     <NavLink
                                         href={route('user-accounts.index')}
@@ -179,6 +184,42 @@ export default function AuthenticatedLayout({ header, children }) {
                         </div>
 
                         <div className="mt-3 space-y-1">
+                            <ResponsiveNavLink
+                                href={route('dashboard')}
+                                active={route().current('dashboard')}
+                            >
+                                Dashboard
+                            </ResponsiveNavLink>
+
+                            {user.role === 'admin' && (
+                                <ResponsiveNavLink
+                                    href={route('user-accounts.index')}
+                                    active={route().current('user-accounts.*')}
+                                >
+                                    User Accounts
+                                </ResponsiveNavLink>
+                            )}
+
+                            <ResponsiveNavLink
+                                href={route('profiles.index')}
+                                active={route().current('profiles.*')}
+                            >
+                                Profiles
+                            </ResponsiveNavLink>
+
+                            <ResponsiveNavLink
+                                href={route('commodities.index')}
+                                active={route().current('commodities.*')}
+                            >
+                                Commodities
+                            </ResponsiveNavLink>
+
+                            <ResponsiveNavLink
+                                href={route('aid-programs.index')}
+                                active={route().current('aid-programs.*')}
+                            >
+                                Aid Programs
+                            </ResponsiveNavLink>
                             <ResponsiveNavLink href={route('profile.edit')}>
                                 Profile
                             </ResponsiveNavLink>

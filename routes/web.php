@@ -4,6 +4,7 @@ use App\Http\Controllers\BeneficiaryProfileController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserAccountController;
 use Illuminate\Foundation\Application;
+use App\Http\Controllers\AidProgramController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -33,6 +34,9 @@ Route::middleware('auth')->group(function () {
     
     Route::resource('commodities', CommodityController::class)
         ->except(['create', 'show', 'edit']); // inline add/edit on the index page, no separate pages
+    
+    Route::resource('aid-programs', AidProgramController::class)
+        ->except(['create', 'show', 'edit']);
 });
 
 require __DIR__.'/auth.php';
