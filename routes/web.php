@@ -6,6 +6,7 @@ use App\Http\Controllers\AidDistributionController;
 use App\Http\Controllers\UserAccountController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Foundation\Application;
 use App\Http\Controllers\AidProgramController;
 use Illuminate\Support\Facades\Route;
@@ -19,10 +20,6 @@ Route::get('/', function () {
         'phpVersion' => PHP_VERSION,
     ]);
 });
-
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -50,6 +47,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/reports/bulk/excel', [ReportController::class, 'bulkExcel'])->name('reports.bulk-excel');
 
     Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
+
+    Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
+
 });
 
 require __DIR__.'/auth.php';

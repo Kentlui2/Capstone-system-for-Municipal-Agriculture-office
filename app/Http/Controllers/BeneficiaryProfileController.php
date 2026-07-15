@@ -21,6 +21,9 @@ class BeneficiaryProfileController extends Controller
         $profiles = Profile::query()
             ->when(request('sector'), fn ($q, $sector) => $q->where('sector', $sector))
             ->when(request('barangay'), fn ($q, $barangay) => $q->where('barangay', $barangay))
+            ->when(request('commodity_id'), function ($q, $commodityId) {
+            $q->whereHas('commodities', fn ($q) => $q->where('commodities.id', $commodityId));
+            })
             ->when(request('search'), function ($q, $search) {
                 $q->where(fn ($q) => $q
                     ->where('first_name', 'ilike', "%{$search}%")
@@ -31,7 +34,7 @@ class BeneficiaryProfileController extends Controller
 
         return Inertia::render('Profiles/Index', [
             'profiles' => $profiles,
-            'filters' => request()->only(['sector', 'barangay', 'search']),
+            'filters' => request()->only(['sector', 'barangay', 'commodity_id', 'search']),
         ]);
     }
 
