@@ -54,6 +54,11 @@ export default function AuthenticatedLayout({ header, children }) {
                                 >
                                     Record Aid
                                 </NavLink>
+                                <NavLink href={route('reports.index')}
+                                    active={route().current('reports.*')}
+                                >
+                                    Reports
+                                </NavLink>
                                 {user.role === 'admin' && (
                                     <NavLink
                                         href={route('user-accounts.index')}
