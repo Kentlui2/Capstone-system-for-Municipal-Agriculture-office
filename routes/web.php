@@ -4,6 +4,7 @@ use App\Http\Controllers\BeneficiaryProfileController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AidDistributionController;
 use App\Http\Controllers\UserAccountController;
+use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\ReportController;
 use Illuminate\Foundation\Application;
 use App\Http\Controllers\AidProgramController;
@@ -47,6 +48,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/reports/profile/{profile}', [ReportController::class, 'profileSheet'])->name('reports.profile-sheet');
     Route::get('/reports/bulk/pdf', [ReportController::class, 'bulkPdf'])->name('reports.bulk-pdf');
     Route::get('/reports/bulk/excel', [ReportController::class, 'bulkExcel'])->name('reports.bulk-excel');
+
+    Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
 });
 
 require __DIR__.'/auth.php';

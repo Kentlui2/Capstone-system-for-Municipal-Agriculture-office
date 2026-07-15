@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreAidDistributionRequest;
 use App\Models\AidDistribution;
 use App\Models\AidProgram;
+use App\Models\Commodity;
 use App\Models\Profile;
 use App\Services\AidDistributionService;
 use Illuminate\Http\RedirectResponse;
@@ -44,6 +45,7 @@ class AidDistributionController extends Controller
         return Inertia::render('AidDistributions/Create', [
             'profiles' => Profile::orderBy('last_name')->get(['id', 'first_name', 'last_name', 'sector']),
             'programs' => AidProgram::where('status', 'active')->get(),
+            'commodities' => Commodity::where('status', 'active')->get(['id', 'name', 'category']),
         ]);
     }
 
@@ -78,19 +80,20 @@ class AidDistributionController extends Controller
             ]);
         }
 
-        AidDistribution::create([
-            'profile_id' => $validated['profile_id'],
-            'program_id' => $validated['program_id'],
-            'aid_type' => $validated['aid_type'],
-            'description' => $validated['description'] ?? null,
-            'quantity' => $validated['quantity'],
-            'unit' => $validated['unit'],
-            'distribution_date' => $validated['distribution_date'],
-            'remarks' => $validated['remarks'] ?? null,
-            'encoded_by' => $request->user()->id,
-            'is_flagged' => $warnings['is_duplicate'],
-            'exceeds_allocation' => $warnings['exceeds_allocation'],
-        ]);
+       AidDistribution::create([
+        'profile_id' => $validated['profile_id'],
+        'program_id' => $validated['program_id'],
+        'commodity_id' => $validated['commodity_id'] ?? null,
+        'aid_type' => $validated['aid_type'],
+        'description' => $validated['description'] ?? null,
+        'quantity' => $validated['quantity'],
+        'unit' => $validated['unit'],
+        'distribution_date' => $validated['distribution_date'],
+        'remarks' => $validated['remarks'] ?? null,
+        'encoded_by' => $request->user()->id,
+        'is_flagged' => $warnings['is_duplicate'],
+        'exceeds_allocation' => $warnings['exceeds_allocation'],
+    ]);
 
         return redirect()
             ->route('aid-distributions.index')

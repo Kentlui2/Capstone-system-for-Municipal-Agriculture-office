@@ -12,6 +12,7 @@ class AidDistribution extends Model
     protected $fillable = [
         'profile_id',
         'program_id',
+        'commodity_id',
         'aid_type',
         'description',
         'quantity',
@@ -55,5 +56,13 @@ class AidDistribution extends Model
     public function encoder()
     {
         return $this->belongsTo(User::class, 'encoded_by');
+    }
+
+    /**
+     * The commodity distributed (if any).
+     */
+    public function commodity()
+    {
+        return $this->belongsTo(Commodity::class);
     }
 }

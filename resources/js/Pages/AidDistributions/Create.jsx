@@ -2,12 +2,13 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
-export default function Create({ profiles, programs }) {
+export default function Create({ profiles, programs, commodities }) {
     const { flash } = usePage().props;
 
     const { data, setData, post, processing, errors } = useForm({
         profile_id: '',
         program_id: '',
+        commodity_id: '',
         aid_type: '',
         description: '',
         quantity: '',
@@ -126,7 +127,19 @@ export default function Create({ profiles, programs }) {
                                 </select>
                                 {errors.program_id && <p className="mt-1 text-sm text-red-600">{errors.program_id}</p>}
                             </div>
-
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Commodity (optional)</label>
+                                <select
+                                    value={data.commodity_id}
+                                    onChange={(e) => setData('commodity_id', e.target.value)}
+                                    className="mt-1 block w-full rounded border-gray-300 text-sm"
+                                >
+                                    <option value="">None / Not applicable</option>
+                                    {commodities.map((c) => (
+                                        <option key={c.id} value={c.id}>{c.name}</option>
+                                    ))}
+                                </select>
+                            </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">Aid Type</label>
                                 <input

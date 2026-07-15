@@ -17,6 +17,7 @@ class StoreAidDistributionRequest extends FormRequest
         return [
             'profile_id' => ['required', 'exists:profiles,id'],
             'program_id' => ['required', 'exists:aid_programs,id'],
+            'commodity_id' => ['nullable', 'exists:commodities,id'],
             'aid_type' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:255'],
             'quantity' => ['required', 'numeric', 'min:0.01'],
