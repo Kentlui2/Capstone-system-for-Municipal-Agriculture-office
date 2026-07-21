@@ -4,6 +4,8 @@ import './bootstrap';
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
+import { syncDownReferenceData } from './offline/syncDown';
+
 
 import { registerSW } from 'virtual:pwa-register';
 
@@ -13,6 +15,10 @@ if (import.meta.env.PROD) {
         scope: '/',
     });
 }
+
+// Cache reference data locally for offline use, whenever the app loads
+// while online. Runs silently in the background — no UI blocking.
+syncDownReferenceData();
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 

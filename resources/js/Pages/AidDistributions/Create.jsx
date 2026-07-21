@@ -1,14 +1,14 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
+import { isActuallyOnline, saveDistributionOffline } from '@/offline/offlineSubmit';
 
-export default function Create({ profiles, programs, commodities }) {
+export default function Create({ profiles, programs }) {
     const { flash } = usePage().props;
 
     const { data, setData, post, processing, errors } = useForm({
         profile_id: '',
         program_id: '',
-        commodity_id: '',
         aid_type: '',
         description: '',
         quantity: '',
@@ -20,17 +20,50 @@ export default function Create({ profiles, programs, commodities }) {
     });
 
     const [warnings, setWarnings] = useState(null);
+    const [offlineMessage, setOfflineMessage] = useState(null);
+    const [submittingOffline, setSubmittingOffline] = useState(false);
 
-    // When the backend sends warnings back via flash data, show them
-    // as a confirmation prompt instead of silently failing
     useEffect(() => {
         if (flash.warnings) {
             setWarnings(flash.warnings);
         }
     }, [flash.warnings]);
 
-    const submit = (e) => {
+    const submit = async (e) => {
         e.preventDefault();
+
+        const online = await isActuallyOnline();
+
+        if (!online) {
+            setSubmittingOffline(true);
+
+            const { isDuplicate } = await saveDistributionOffline(data);
+
+            setSubmittingOffline(false);
+            setOfflineMessage(
+                isDuplicate
+                    ? 'Saved locally (flagged as possible duplicate). Will sync and verify when connection is restored.'
+                    : 'Saved locally. Will sync automatically when connection is restored.'
+            );
+
+            // Reset the form so the Encoder can continue encoding
+            // the next distribution while still offline
+            setData({
+                profile_id: '',
+                program_id: '',
+                aid_type: '',
+                description: '',
+                quantity: '',
+                unit: '',
+                distribution_date: '',
+                remarks: '',
+                confirmed_duplicate: false,
+                confirmed_over_allocation: false,
+            });
+
+            return;
+        }
+
         post(route('aid-distributions.store'), { preserveScroll: true });
     };
 
@@ -41,8 +74,6 @@ export default function Create({ profiles, programs, commodities }) {
             confirmed_over_allocation: warnings.exceeds_allocation,
         });
 
-        // setData is async, so resubmit on next tick with the
-        // confirmation flags actually applied
         setTimeout(() => {
             post(route('aid-distributions.store'), { preserveScroll: true });
         }, 0);
@@ -61,6 +92,12 @@ export default function Create({ profiles, programs, commodities }) {
             <div className="py-12">
                 <div className="mx-auto max-w-2xl sm:px-6 lg:px-8">
                     <div className="bg-white p-6 shadow-sm sm:rounded-lg">
+
+                        {offlineMessage && (
+                            <div className="mb-6 rounded border border-blue-300 bg-blue-50 p-4 text-sm text-blue-800">
+                                {offlineMessage}
+                            </div>
+                        )}
 
                         {warnings && (
                             <div className="mb-6 rounded border border-amber-300 bg-amber-50 p-4">
@@ -127,19 +164,7 @@ export default function Create({ profiles, programs, commodities }) {
                                 </select>
                                 {errors.program_id && <p className="mt-1 text-sm text-red-600">{errors.program_id}</p>}
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">Commodity (optional)</label>
-                                <select
-                                    value={data.commodity_id}
-                                    onChange={(e) => setData('commodity_id', e.target.value)}
-                                    className="mt-1 block w-full rounded border-gray-300 text-sm"
-                                >
-                                    <option value="">None / Not applicable</option>
-                                    {commodities.map((c) => (
-                                        <option key={c.id} value={c.id}>{c.name}</option>
-                                    ))}
-                                </select>
-                            </div>
+
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">Aid Type</label>
                                 <input
@@ -209,10 +234,10 @@ export default function Create({ profiles, programs, commodities }) {
 
                             <button
                                 type="submit"
-                                disabled={processing}
+                                disabled={processing || submittingOffline}
                                 className="rounded bg-indigo-600 px-4 py-2 text-sm text-white hover:bg-indigo-700 disabled:opacity-50"
                             >
-                                Record Distribution
+                                {submittingOffline ? 'Saving locally...' : 'Record Distribution'}
                             </button>
                         </form>
                     </div>

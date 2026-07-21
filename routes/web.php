@@ -7,6 +7,7 @@ use App\Http\Controllers\UserAccountController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Api\OfflineDataController;
 use Illuminate\Foundation\Application;
 use App\Http\Controllers\AidProgramController;
 use Illuminate\Support\Facades\Route;
@@ -50,6 +51,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
 
+    Route::get('/api/offline/reference-data', [OfflineDataController::class, 'referenceData']);
+    Route::get('/api/offline/ping', fn () => response()->noContent());
 });
 
 require __DIR__.'/auth.php';
