@@ -3,6 +3,12 @@
         Options -MultiViews -Indexes
     </IfModule>
 
+    <IfModule mod_headers.c>
+        <Files "sw.js">
+            Header set Service-Worker-Allowed "/"
+        </Files>
+    </IfModule>
+
     RewriteEngine On
 
     # Handle Authorization Header
