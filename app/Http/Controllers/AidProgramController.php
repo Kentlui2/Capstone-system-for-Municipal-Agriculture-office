@@ -78,4 +78,24 @@ class AidProgramController extends Controller
             ->route('aid-programs.index')
             ->with('success', 'Aid program removed successfully.');
     }
+
+    public function show(AidProgram $aidProgram): Response
+    {
+        $this->authorize('view', $aidProgram);
+
+        $aidProgram->load(['distributions.profile']);
+
+        // Unique profiles who received aid under this program —
+    // a profile could appear multiple times in distributions
+    // (different dates/quantities), but should only be listed once here
+    $profiles = $aidProgram->distributions
+        ->pluck('profile')
+        ->unique('id')
+        ->values();
+
+        return Inertia::render('AidPrograms/Show', [
+            'program' => $aidProgram,
+            'profiles' => $profiles,
+        ]);
+    }
 }

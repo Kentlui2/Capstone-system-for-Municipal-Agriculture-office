@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import Modal from '@/Components/Modal';
-import { Head, useForm, router, usePage } from '@inertiajs/react';
+import { Head, Link, useForm, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
 export default function Index({ programs }) {
@@ -230,6 +230,12 @@ export default function Index({ programs }) {
                                                 >
                                                     Delete
                                                 </button>
+                                                <Link
+                                                    href={route('aid-programs.show', program.id)}
+                                                    className="text-gray-600 hover:underline"
+                                                >
+                                                    View
+                                                </Link>
                                             </td>
                                         )}
                                     </tr>

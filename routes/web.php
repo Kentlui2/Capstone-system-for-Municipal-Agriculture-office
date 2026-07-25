@@ -4,6 +4,7 @@ use App\Http\Controllers\BeneficiaryProfileController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AidDistributionController;
 use App\Http\Controllers\UserAccountController;
+use App\Http\Controllers\Api\SyncController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\DashboardController;
@@ -37,7 +38,7 @@ Route::middleware('auth')->group(function () {
         ->except(['create', 'show', 'edit']); // inline add/edit on the index page, no separate pages
     
     Route::resource('aid-programs', AidProgramController::class)
-        ->except(['create', 'show', 'edit']);
+        ->except(['create', 'edit']);
     
     Route::resource('aid-distributions', AidDistributionController::class)
         ->only(['index', 'create', 'store', 'show']); // permanent records — no edit/update/destroy
@@ -52,7 +53,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
 
     Route::get('/api/offline/reference-data', [OfflineDataController::class, 'referenceData']);
-    Route::get('/api/offline/ping', fn () => response()->noContent());
+    Route::get('/api/offline/ping', fn() => response()->noContent());
+
+    Route::post('/api/offline/sync/profile', [SyncController::class, 'syncProfile']);
+    Route::post('/api/offline/sync/distribution', [SyncController::class, 'syncDistribution']);
+    Route::post('/api/offline/sync/distribution/force', [SyncController::class, 'forceSyncDistribution']);
+    Route::get('/offline-queue', fn () => Inertia::render('OfflineQueue/Index'))->name('offline-queue.index');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

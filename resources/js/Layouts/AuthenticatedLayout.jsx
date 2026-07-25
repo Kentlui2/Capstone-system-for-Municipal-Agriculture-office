@@ -64,6 +64,11 @@ export default function AuthenticatedLayout({ header, children }) {
                                 >
                                     Reports
                                 </NavLink>
+                                <NavLink href={route('offline-queue.index')}
+                                    active={route().current('offline-queue.*')}
+                                >
+                                    Sync Queue
+                                </NavLink>
                                 {user.role === 'admin' && (
                                     <NavLink
                                         href={route('user-accounts.index')}
