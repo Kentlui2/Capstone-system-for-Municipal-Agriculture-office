@@ -11,7 +11,7 @@ export default function CommodityPicker({ sector, allCommodities, selected, onCh
                 key: 'production_type',
                 label: 'Production Type',
                 type: 'select',
-                options: ['fish_catch', 'fish_cage', 'pond'],
+                options: ['fish_catch', 'fish_cage', 'fish_pond'],
             },
         ],
         raiser: [

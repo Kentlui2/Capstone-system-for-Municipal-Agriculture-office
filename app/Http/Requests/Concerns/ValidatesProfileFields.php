@@ -32,7 +32,7 @@ trait ValidatesProfileFields
             'commodities.*.no_of_hills_trees' => ['nullable', 'integer', 'min:0'],
             'commodities.*.no_of_heads' => ['nullable', 'integer', 'min:0'],
             'commodities.*.no_of_stocks' => ['nullable', 'integer', 'min:0'],
-            'commodities.*.production_type' => ['nullable', Rule::in(['fish_catch', 'fish_cage', 'pond'])],
+            'commodities.*.production_type' => ['nullable', Rule::in(['fish_catch', 'fish_cage', 'fish_pond'])],
         ];
     }
 
