@@ -1,7 +1,17 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
+import { subscribeToPushNotifications } from '@/offline/pushNotifications';
+import { useState } from 'react';
 
 export default function Dashboard({ stats }) {
+
+    const [notifStatus, setNotifStatus] = useState(null);
+
+    const enableNotifications = async () => {
+        const success = await subscribeToPushNotifications();
+        setNotifStatus(success ? 'enabled' : 'denied');
+    };
+
     return (
         <AuthenticatedLayout
             header={<h2 className="text-xl font-semibold text-gray-800">Dashboard</h2>}
@@ -30,6 +40,25 @@ export default function Dashboard({ stats }) {
                             <p className="mt-1 text-3xl font-semibold text-red-600">{stats.unserved_profiles_count}</p>
                         </div>
                     </div>
+
+                    {notifStatus !== 'enabled' && (
+                        <div className="rounded border border-indigo-200 bg-indigo-50 p-4">
+                            <p className="mb-2 text-sm text-indigo-800">
+                                Enable push notifications to get alerted about pending approvals and flagged records.
+                            </p>
+                            <button
+                                onClick={enableNotifications}
+                                className="rounded bg-indigo-600 px-4 py-2 text-sm text-white hover:bg-indigo-700"
+                            >
+                                Enable Notifications
+                            </button>
+                            {notifStatus === 'denied' && (
+                                <p className="mt-2 text-xs text-red-600">
+                                    Permission denied. Enable notifications in your browser settings to receive alerts.
+                                </p>
+                            )}
+                        </div>
+                    )}
 
                     {/* Needs attention */}
                     {stats.duplicate_flag_count > 0 && (

@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Notifications\NewUserRegistered;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
@@ -46,6 +47,11 @@ class RegisteredUserController extends Controller
         'role' => 'encoder',
         'status' => 'pending',
     ]);
+
+    // Notify all Admins so they see the pending approval immediately,
+    // rather than only discovering it next time they check User Accounts
+    User::where('role', 'admin')->where('status', 'approved')->get()
+        ->each(fn($admin) => $admin->notify(new NewUserRegistered($user)));
 
     // Do NOT log the user in immediately — they need Admin approval first.
     return redirect()->route('login')

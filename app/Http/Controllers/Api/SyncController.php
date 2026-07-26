@@ -8,6 +8,8 @@ use App\Http\Requests\StoreProfileRequest;
 use App\Models\AidDistribution;
 use App\Models\AidProgram;
 use App\Models\Profile;
+use App\Notifications\DistributionNeedsReview;
+use App\Models\User;
 use App\Services\AidDistributionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -101,11 +103,21 @@ class SyncController extends Controller
     // If either warning applies, don't commit yet — hold for review.
     // No interactive Encoder is present during background sync, so
     // we can't ask "confirm anyway?" the way the online flow does.
-    if ($warnings['is_duplicate'] || $warnings['exceeds_allocation']) {
-        return response()->json([
-            'status' => 'needs_review',
-            'warnings' => $warnings,
-        ]);
+  if ($warnings['is_duplicate'] || $warnings['exceeds_allocation']) {
+    $admins = User::where('role', 'admin')->where('status', 'approved')->get();
+
+    foreach ($admins as $admin) {
+        try {
+            $admin->notify(new DistributionNeedsReview($warnings));
+        } catch (\Throwable $e) {
+            \Log::error('Notification failed', ['admin_id' => $admin->id, 'error' => $e->getMessage()]);
+        }
+    }
+
+    return response()->json([
+        'status' => 'needs_review',
+        'warnings' => $warnings,
+    ]);
     }
 
     $distribution = AidDistribution::create([

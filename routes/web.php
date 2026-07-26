@@ -59,6 +59,17 @@ Route::middleware('auth')->group(function () {
     Route::post('/api/offline/sync/distribution', [SyncController::class, 'syncDistribution']);
     Route::post('/api/offline/sync/distribution/force', [SyncController::class, 'forceSyncDistribution']);
     Route::get('/offline-queue', fn () => Inertia::render('OfflineQueue/Index'))->name('offline-queue.index');
+
+    Route::post('/api/push-subscriptions', function (Illuminate\Http\Request $request) {
+    $request->user()->updatePushSubscription(
+        $request->endpoint,
+        $request->keys['p256dh'] ?? null,
+        $request->keys['auth'] ?? null,
+        $request->contentEncoding ?? null,
+    );
+
+    return response()->noContent();
+    });
 });
 
 require __DIR__ . '/auth.php';

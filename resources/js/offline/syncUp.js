@@ -38,7 +38,7 @@ export async function syncUpPendingRecords() {
     }
 
     // --- Sync pending distributions ---
-    const pendingDistributions = await db.getAll('pending_distributions');
+    const pendingDistributions = (await db.getAll('pending_distributions')).filter((d) => d.status === 'pending_sync');
 
     for (const distribution of pendingDistributions) {
         try {

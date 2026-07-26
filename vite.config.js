@@ -31,6 +31,7 @@ export default defineConfig({
                 globDirectory: 'public/build',
                 globPatterns: ['**/*.{js,css,png,svg}'],
                 navigateFallback: null,
+                importScripts: ['sw-push.js'],
             },
             devOptions: {
                 enabled: false,
