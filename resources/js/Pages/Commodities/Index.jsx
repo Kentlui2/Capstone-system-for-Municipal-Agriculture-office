@@ -2,7 +2,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
-export default function Index({ commodities }) {
+export default function Index({ commodities, filters }) {
     const { auth } = usePage().props;
     const isAdmin = auth.user.role === 'admin';
 
@@ -11,6 +11,9 @@ export default function Index({ commodities }) {
 
     const addForm = useForm({ name: '', category: 'Crops', status: 'active' });
     const editForm = useForm({ name: '', category: '', status: '' });
+
+    const [category, setCategory] = useState(filters.category || '');
+    const [status, setStatus] = useState(filters.status || '');
 
     const submitAdd = (e) => {
         e.preventDefault();
@@ -54,6 +57,16 @@ export default function Index({ commodities }) {
         Livestock: 'bg-amber-100 text-amber-800',
     };
 
+    const applyFilters = () => {
+        router.get(route('commodities.index'), { category, status }, { preserveState: true });
+    };
+
+    const resetFilters = () => {
+        setCategory('');
+        setStatus('');
+        router.get(route('commodities.index'));
+    };
+
     return (
         <AuthenticatedLayout
             header={
@@ -75,6 +88,47 @@ export default function Index({ commodities }) {
             <div className="py-12">
                 <div className="mx-auto max-w-4xl sm:px-6 lg:px-8">
                     <div className="bg-white p-6 shadow-sm sm:rounded-lg">
+
+                        {/* Filter bar */}
+                        <div className="mb-4 flex flex-wrap items-end gap-3">
+                            <div>
+                                <label className="block text-xs text-gray-500">Category</label>
+                                <select
+                                    value={category}
+                                    onChange={(e) => setCategory(e.target.value)}
+                                    className="mt-1 rounded border-gray-300 text-sm"
+                                >
+                                    <option value="">All Categories</option>
+                                    <option value="Crops">Crops</option>
+                                    <option value="Aquatic">Aquatic</option>
+                                    <option value="Livestock">Livestock</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-xs text-gray-500">Status</label>
+                                <select
+                                    value={status}
+                                    onChange={(e) => setStatus(e.target.value)}
+                                    className="mt-1 rounded border-gray-300 text-sm"
+                                >
+                                    <option value="">All Statuses</option>
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                            </div>
+                            <button
+                                onClick={applyFilters}
+                                className="rounded bg-gray-800 px-4 py-2 text-sm text-white hover:bg-gray-800"
+                            >
+                                Filter
+                            </button>
+                            <button
+                                onClick={resetFilters}
+                                className="rounded bg-gray-200 px-4 py-2 text-sm text-gray-800 hover:bg-gray-300"
+                            >
+                                Reset
+                            </button>
+                        </div>
 
                         {showAddForm && (
                             <form onSubmit={submitAdd} className="mb-6 flex items-end gap-3 rounded border border-gray-200 p-4">

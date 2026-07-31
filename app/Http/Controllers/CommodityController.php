@@ -19,12 +19,16 @@ class CommodityController extends Controller
     {
         $this->authorize('viewAny', Commodity::class);
 
-        $commodities = Commodity::orderBy('category')
+        $commodities = Commodity::query()
+            ->when(request('category'), fn($q, $category) => $q->where('category', $category))
+            ->when(request('status'), fn($q, $status) => $q->where('status', $status))
+            ->orderBy('category')
             ->orderBy('name')
             ->get();
 
         return Inertia::render('Commodities/Index', [
             'commodities' => $commodities,
+            'filters' => request()->only(['category', 'status']),
         ]);
     }
 
