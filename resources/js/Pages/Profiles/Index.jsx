@@ -1,5 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
+import SearchableSelect from '@/Components/SearchableSelect';
+import { BARANGAYS } from '@/constants/barangays';
 import { useState } from 'react';
 
 export default function Index({ profiles, filters }) {
@@ -8,10 +10,15 @@ export default function Index({ profiles, filters }) {
 
     const [search, setSearch] = useState(filters.search || '');
     const [sector, setSector] = useState(filters.sector || '');
+    const [barangay, setBarangay] = useState(filters.barangay || 'All Barangays');
 
     const applyFilters = (e) => {
         e.preventDefault();
-        router.get(route('profiles.index'), { search, sector }, { preserveState: true });
+        router.get(route('profiles.index'), {
+            search,
+            sector,
+            barangay: barangay === 'All Barangays' ? '' : barangay,
+        }, { preserveState: true });
     };
 
     const deleteProfile = (profile) => {
@@ -69,6 +76,14 @@ export default function Index({ profiles, filters }) {
                                     <option value="fisherfolk">Fisherfolk</option>
                                     <option value="raiser">Raiser</option>
                                 </select>
+                                <div className="w-48">
+                                    <SearchableSelect
+                                        value={barangay}
+                                        onChange={setBarangay}
+                                        options={['All Barangays', ...BARANGAYS]}
+                                        placeholder="All Barangays"
+                                    />
+                                </div>
                                 <button
                                     type="submit"
                                     className="rounded bg-gray-800 px-4 py-2 text-sm text-white hover:bg-gray-900"
@@ -142,8 +157,8 @@ export default function Index({ profiles, filters }) {
                                         onClick={() => link.url && router.get(link.url)}
                                         dangerouslySetInnerHTML={{ __html: link.label }}
                                         className={`rounded px-3 py-1 text-sm ${link.active
-                                                ? 'bg-indigo-600 text-white'
-                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                            ? 'bg-indigo-600 text-white'
+                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                             } ${!link.url ? 'cursor-not-allowed opacity-50' : ''}`}
                                     />
                                 ))}

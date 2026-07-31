@@ -1,5 +1,7 @@
 import SectorFieldsInput from './SectorFieldsInput';
 import CommodityPicker from './CommodityPicker';
+import SearchableSelect from '@/Components/SearchableSelect';
+import { BARANGAYS } from '@/constants/barangays';
 
 export default function ProfileForm({ data, setData, errors, commodities, existingPhotoUrl }) {
     const handleSectorChange = (newSector) => {
@@ -65,11 +67,11 @@ export default function ProfileForm({ data, setData, errors, commodities, existi
 
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Barangay</label>
-                    <input
-                        type="text"
+                    <SearchableSelect
                         value={data.barangay}
-                        onChange={(e) => setData('barangay', e.target.value)}
-                        className="mt-1 block w-full rounded border-gray-300 text-sm"
+                        onChange={(value) => setData('barangay', value)}
+                        options={BARANGAYS}
+                        placeholder="Select barangay..."
                     />
                     {errors.barangay && <p className="mt-1 text-sm text-red-600">{errors.barangay}</p>}
                 </div>

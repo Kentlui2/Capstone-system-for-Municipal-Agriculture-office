@@ -1,0 +1,21 @@
+// Official list of the 18 barangays of Sta. Cruz, Davao del Sur
+export const BARANGAYS = [
+    'Astorga',
+    'Bato',
+    'Coronon',
+    'Darong',
+    'Inawayan',
+    'Jose Rizal',
+    'Matutungan',
+    'Melilia',
+    'Saliducon',
+    'Sibulan',
+    'Sinoron',
+    'Tagabuli',
+    'Tibolo',
+    'Tuban',
+    'Zone I',
+    'Zone II',
+    'Zone III',
+    'Zone IV',
+];

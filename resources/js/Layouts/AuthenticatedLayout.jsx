@@ -38,7 +38,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                     Aid Programs
                                 </NavLink>
                                 <NavLink href={route('aid-distributions.index')} active={route().current('aid-distributions.*')}>
-                                    Record Aid
+                                    Aid Distributions
                                 </NavLink>
                                 <NavLink href={route('analytics.index')} active={route().current('analytics.*')}>
                                     Analytics
@@ -135,7 +135,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             Aid Programs
                         </ResponsiveNavLink>
                         <ResponsiveNavLink href={route('aid-distributions.index')} active={route().current('aid-distributions.*')}>
-                            Record Aid
+                            Aid Distributions
                         </ResponsiveNavLink>
                         <ResponsiveNavLink href={route('analytics.index')} active={route().current('analytics.*')}>
                             Analytics
