@@ -1,7 +1,21 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
+import { useState } from 'react';
 
-export default function Index({ distributions }) {
+export default function Index({ distributions, programs, filters }) {
+    const [programId, setProgramId] = useState(filters.program_id || '');
+    const [flagged, setFlagged] = useState(filters.flagged || '');
+
+    const applyFilters = () => {
+        router.get(route('aid-distributions.index'), { program_id: programId, flagged }, { preserveState: true });
+    };
+
+    const resetFilters = () => {
+        setProgramId('');
+        setFlagged('');
+        router.get(route('aid-distributions.index'));
+    };
+
     return (
         <AuthenticatedLayout
             header={
@@ -21,6 +35,48 @@ export default function Index({ distributions }) {
             <div className="py-12">
                 <div className="mx-auto max-w-6xl sm:px-6 lg:px-8">
                     <div className="bg-white p-6 shadow-sm sm:rounded-lg">
+
+                        {/* Filter bar */}
+                        <div className="mb-6 flex flex-wrap items-end gap-3">
+                            <div>
+                                <label className="block text-xs text-gray-500">Program</label>
+                                <select
+                                    value={programId}
+                                    onChange={(e) => setProgramId(e.target.value)}
+                                    className="mt-1 rounded border-gray-300 text-sm"
+                                >
+                                    <option value="">All Programs</option>
+                                    {programs.map((p) => (
+                                        <option key={p.id} value={p.id}>{p.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-xs text-gray-500">Flagged</label>
+                                <select
+                                    value={flagged}
+                                    onChange={(e) => setFlagged(e.target.value)}
+                                    className="mt-1 rounded border-gray-300 text-sm"
+                                >
+                                    <option value="">All</option>
+                                    <option value="duplicate">Duplicates Only</option>
+                                    <option value="over_allocation">Over-Allocated Only</option>
+                                </select>
+                            </div>
+                            <button
+                                onClick={applyFilters}
+                                className="rounded bg-gray-800 px-4 py-2 text-sm text-white hover:bg-gray-900"
+                            >
+                                Filter
+                            </button>
+                            <button
+                                onClick={resetFilters}
+                                className="rounded bg-gray-200 px-4 py-2 text-sm text-gray-800 hover:bg-gray-300"
+                            >
+                                Reset
+                            </button>
+                        </div>
+
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead>
                                 <tr className="text-left text-sm font-medium text-gray-500">
@@ -80,8 +136,8 @@ export default function Index({ distributions }) {
                                     onClick={() => link.url && router.get(link.url)}
                                     dangerouslySetInnerHTML={{ __html: link.label }}
                                     className={`rounded px-3 py-1 text-sm ${link.active
-                                            ? 'bg-indigo-600 text-white'
-                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                        ? 'bg-indigo-600 text-white'
+                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                         } ${!link.url ? 'cursor-not-allowed opacity-50' : ''}`}
                                 />
                             ))}
