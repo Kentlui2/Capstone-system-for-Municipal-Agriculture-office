@@ -90,7 +90,7 @@ export default function Index({ commodities, filters }) {
                     <div className="bg-white p-6 shadow-sm sm:rounded-lg">
 
                         {/* Filter bar */}
-                        <div className="mb-4 flex flex-wrap items-end gap-3">
+                        <div className="mb-6 flex flex-wrap items-end gap-3">
                             <div>
                                 <label className="block text-xs text-gray-500">Category</label>
                                 <select

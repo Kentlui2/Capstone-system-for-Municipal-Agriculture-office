@@ -3,12 +3,15 @@ import Modal from '@/Components/Modal';
 import { Head, Link, useForm, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
-export default function Index({ programs }) {
+export default function Index({ programs, filters }) {
     const { auth } = usePage().props;
     const isAdmin = auth.user.role === 'admin';
 
     const [showAddForm, setShowAddForm] = useState(false);
     const [editingProgram, setEditingProgram] = useState(null);
+
+    const [aidType, setAidType] = useState(filters.aid_type || '');
+    const [status, setStatus] = useState(filters.status || '');
 
     const emptyForm = {
         name: '',
@@ -73,6 +76,16 @@ export default function Index({ programs }) {
         router.delete(route('aid-programs.destroy', program.id), { preserveScroll: true });
     };
 
+    const applyFilters = () => {
+        router.get(route('aid-programs.index'), { aid_type: aidType, status }, { preserveState: true });
+    };
+
+    const resetFilters = () => {
+        setAidType('');
+        setStatus('');
+        router.get(route('aid-programs.index'));
+    };
+
     return (
         <AuthenticatedLayout
             header={
@@ -94,6 +107,49 @@ export default function Index({ programs }) {
             <div className="py-12">
                 <div className="mx-auto max-w-6xl sm:px-6 lg:px-8">
                     <div className="bg-white p-6 shadow-sm sm:rounded-lg">
+
+                        {/* Filter bar */}
+                        <div className="mb-6 flex flex-wrap items-end gap-3">
+                            <div>
+                                <label className="block text-xs text-gray-500">Aid Type</label>
+                                <select
+                                    value={aidType}
+                                    onChange={(e) => setAidType(e.target.value)}
+                                    className="mt-1 rounded border-gray-300 text-sm"
+                                >
+                                    <option value="">All Types</option>
+                                    <option value="Seeds">Seeds</option>
+                                    <option value="Fertilizer">Fertilizer</option>
+                                    <option value="Equipment">Equipment</option>
+                                    <option value="Cash Incentive">Cash Incentive</option>
+                                    <option value="Livelihood">Livelihood</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-xs text-gray-500">Status</label>
+                                <select
+                                    value={status}
+                                    onChange={(e) => setStatus(e.target.value)}
+                                    className="mt-1 rounded border-gray-300 text-sm"
+                                >
+                                    <option value="">All Statuses</option>
+                                    <option value="active">Active</option>
+                                    <option value="closed">Closed</option>
+                                </select>
+                            </div>
+                            <button
+                                onClick={applyFilters}
+                                className="rounded bg-gray-800 px-4 py-2 text-sm text-white hover:bg-gray-900"
+                            >
+                                Filter
+                            </button>
+                            <button
+                                onClick={resetFilters}
+                                className="rounded bg-gray-200 px-4 py-2 text-sm text-gray-800 hover:bg-gray-300"
+                            >
+                                Reset
+                            </button>
+                        </div>
 
                         {showAddForm && (
                             <form onSubmit={submitAdd} className="mb-6 space-y-3 rounded border border-gray-200 p-4">

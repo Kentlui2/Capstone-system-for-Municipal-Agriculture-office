@@ -15,17 +15,21 @@ class AidProgramController extends Controller
      * List all aid programs — both roles can view (Encoders need
      * this to select a program when recording distributions).
      */
-    public function index(): Response
+   public function index(): Response
     {
         $this->authorize('viewAny', AidProgram::class);
 
-        $programs = AidProgram::orderBy('status')
-            ->orderBy('name')
-            ->get();
+        $programs = AidProgram::query()
+        ->when(request('aid_type'), fn ($q, $type) => $q->where('aid_type', $type))
+        ->when(request('status'), fn ($q, $status) => $q->where('status', $status))
+        ->orderBy('status')
+        ->orderBy('name')
+        ->get();
 
         return Inertia::render('AidPrograms/Index', [
-            'programs' => $programs,
-        ]);
+        'programs' => $programs,
+        'filters' => request()->only(['aid_type', 'status']),
+    ]);
     }
 
     /**
