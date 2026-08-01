@@ -1,12 +1,7 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import Sidebar from '@/Layouts/Sidebar';
 import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
-import {
-    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-    PieChart, Pie, Cell, Legend,
-} from 'recharts';
-
-const COLORS = ['#4f46e5', '#0d9488', '#d97706', '#dc2626', '#7c3aed', '#0891b2', '#65a30d', '#db2777', '#ea580c', '#0284c7'];
+import { Card, Text, Metric, BarList, AreaChart, SparkAreaChart, DonutChart, Legend, Flex } from '@tremor/react';
 
 export default function Index({ metrics, programs, filters }) {
     const [programId, setProgramId] = useState(filters.program_id || '');
@@ -28,176 +23,174 @@ export default function Index({ metrics, programs, filters }) {
         router.get(route('analytics.index'));
     };
 
+    const coverageBarListData = metrics.coverage_by_barangay.map((row) => ({
+        name: row.barangay,
+        value: row.coverage_rate,
+    }));
+
+    const utilizationBarListData = metrics.program_utilization.map((row) => ({
+        name: row.program,
+        value: row.utilization_rate,
+    }));
+
+    const commodityDonutData = metrics.commodity_breakdown.map((row) => ({
+        name: row.commodity,
+        value: row.count,
+    }));
+
+    const totalDistributionsTrend = metrics.distributions_over_time.reduce((sum, r) => sum + r.Distributions, 0);
+
     return (
-        <AuthenticatedLayout
-            header={<h2 className="text-xl font-semibold text-gray-800">Analytics</h2>}
-        >
+        <Sidebar header={<h2 className="text-xl font-semibold text-gray-800">Analytics</h2>}>
             <Head title="Analytics" />
 
             <div className="py-12">
                 <div className="mx-auto max-w-6xl space-y-6 sm:px-6 lg:px-8">
 
                     {/* Filter bar */}
-                    <div className="bg-white p-4 shadow-sm sm:rounded-lg">
+                    <Card>
                         <div className="flex flex-wrap items-end gap-3">
                             <div>
                                 <label className="block text-xs text-gray-500">Program</label>
-                                <select
-                                    value={programId}
-                                    onChange={(e) => setProgramId(e.target.value)}
-                                    className="mt-1 rounded border-gray-300 text-sm"
-                                >
+                                <select value={programId} onChange={(e) => setProgramId(e.target.value)} className="mt-1 rounded border-gray-300 text-sm">
                                     <option value="">All Programs</option>
-                                    {programs.map((p) => (
-                                        <option key={p.id} value={p.id}>{p.name}</option>
-                                    ))}
+                                    {programs.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                                 </select>
                             </div>
                             <div>
                                 <label className="block text-xs text-gray-500">Start Date</label>
-                                <input
-                                    type="date"
-                                    value={startDate}
-                                    onChange={(e) => setStartDate(e.target.value)}
-                                    className="mt-1 rounded border-gray-300 text-sm"
-                                />
+                                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="mt-1 rounded border-gray-300 text-sm" />
                             </div>
                             <div>
                                 <label className="block text-xs text-gray-500">End Date</label>
-                                <input
-                                    type="date"
-                                    value={endDate}
-                                    onChange={(e) => setEndDate(e.target.value)}
-                                    className="mt-1 rounded border-gray-300 text-sm"
-                                />
+                                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="mt-1 rounded border-gray-300 text-sm" />
                             </div>
-                            <button
-                                onClick={applyFilters}
-                                className="rounded bg-indigo-600 px-4 py-2 text-sm text-white hover:bg-indigo-700"
-                            >
-                                Apply
-                            </button>
-                            <button
-                                onClick={resetFilters}
-                                className="rounded bg-gray-200 px-4 py-2 text-sm text-gray-800 hover:bg-gray-300"
-                            >
-                                Reset
-                            </button>
+                            <button onClick={applyFilters} className="rounded bg-emerald-600 px-4 py-2 text-sm text-white hover:bg-emerald-700">Apply</button>
+                            <button onClick={resetFilters} className="rounded bg-gray-200 px-4 py-2 text-sm text-gray-800 hover:bg-gray-300">Reset</button>
                         </div>
-                    </div>
+                    </Card>
 
                     {/* Stat cards */}
-                    <div className="grid grid-cols-2 gap-6">
-                        <div className="bg-white p-6 shadow-sm sm:rounded-lg">
-                            <p className="text-sm text-gray-500">Duplicate Flags</p>
-                            <p className="mt-1 text-3xl font-semibold text-amber-600">{metrics.duplicate_flag_count}</p>
-                        </div>
-                        <div className="bg-white p-6 shadow-sm sm:rounded-lg">
-                            <p className="text-sm text-gray-500">Unserved Profiles</p>
-                            <p className="mt-1 text-3xl font-semibold text-red-600">{metrics.unserved_profiles_count}</p>
-                        </div>
+                    <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+                        <Card decoration="top" decorationColor="amber">
+                            <Text>Duplicate Flags</Text>
+                            <Metric>{metrics.duplicate_flag_count}</Metric>
+                        </Card>
+                        <Card decoration="top" decorationColor="red">
+                            <Text>Unserved Profiles</Text>
+                            <Metric>{metrics.unserved_profiles_count}</Metric>
+                        </Card>
+                        <Card decoration="top" decorationColor="emerald">
+                            <Text>Total Distributions (Trend)</Text>
+                            <Flex justifyContent="between" alignItems="end">
+                                <Metric>{totalDistributionsTrend}</Metric>
+                                {metrics.distributions_over_time.length > 1 && (
+                                    <SparkAreaChart
+                                        data={metrics.distributions_over_time}
+                                        categories={['Distributions']}
+                                        index="month"
+                                        colors={['emerald']}
+                                        className="h-10 w-24"
+                                    />
+                                )}
+                            </Flex>
+                        </Card>
+                        <Card decoration="top" decorationColor="blue">
+                            <Text>Active Programs Tracked</Text>
+                            <Metric>{metrics.program_utilization.length}</Metric>
+                        </Card>
                     </div>
 
+                    {/* Most/least served */}
                     <div className="grid grid-cols-2 gap-6">
-                        <div className="bg-white p-6 shadow-sm sm:rounded-lg">
-                            <p className="text-sm text-gray-500">Most Served Barangay</p>
+                        <Card decoration="left" decorationColor="emerald">
+                            <Text>Most Served Barangay</Text>
                             {metrics.most_served_barangay ? (
                                 <>
-                                    <p className="mt-1 text-xl font-semibold text-green-700">{metrics.most_served_barangay.barangay}</p>
-                                    <p className="text-sm text-gray-500">{metrics.most_served_barangay.coverage_rate}% coverage</p>
+                                    <Metric className="text-lg">{metrics.most_served_barangay.barangay}</Metric>
+                                    <Text>{metrics.most_served_barangay.coverage_rate}% coverage</Text>
                                 </>
-                            ) : <p className="mt-1 text-sm text-gray-400">No data</p>}
-                        </div>
-                        <div className="bg-white p-6 shadow-sm sm:rounded-lg">
-                            <p className="text-sm text-gray-500">Least Served Barangay</p>
+                            ) : <Text className="mt-1 text-gray-400">No data</Text>}
+                        </Card>
+                        <Card decoration="left" decorationColor="red">
+                            <Text>Least Served Barangay</Text>
                             {metrics.least_served_barangay ? (
                                 <>
-                                    <p className="mt-1 text-xl font-semibold text-red-700">{metrics.least_served_barangay.barangay}</p>
-                                    <p className="text-sm text-gray-500">{metrics.least_served_barangay.coverage_rate}% coverage</p>
+                                    <Metric className="text-lg">{metrics.least_served_barangay.barangay}</Metric>
+                                    <Text>{metrics.least_served_barangay.coverage_rate}% coverage</Text>
                                 </>
-                            ) : <p className="mt-1 text-sm text-gray-400">No data</p>}
-                        </div>
+                            ) : <Text className="mt-1 text-gray-400">No data</Text>}
+                        </Card>
                     </div>
 
-                    {/* Coverage by barangay — horizontal bar chart */}
-                    <div className="bg-white p-6 shadow-sm sm:rounded-lg">
-                        <h3 className="mb-4 text-lg font-medium text-gray-800">Aid Coverage by Barangay</h3>
-                        {metrics.coverage_by_barangay.length === 0 ? (
-                            <p className="text-sm text-gray-500">No profiles recorded yet.</p>
+                    {/* Distributions over time — Area Chart */}
+                    <Card>
+                        <Text className="font-semibold text-gray-800">Distributions Over Time</Text>
+                        {metrics.distributions_over_time.length === 0 ? (
+                            <p className="mt-4 text-sm text-gray-500">No distributions recorded yet.</p>
                         ) : (
-                            <ResponsiveContainer width="100%" height={Math.max(300, metrics.coverage_by_barangay.length * 35)}>
-                                <BarChart
-                                    data={metrics.coverage_by_barangay}
-                                    layout="vertical"
-                                    margin={{ left: 20 }}
-                                >
-                                    <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                                    <XAxis type="number" domain={[0, 100]} unit="%" />
-                                    <YAxis type="category" dataKey="barangay" width={90} tick={{ fontSize: 12 }} />
-                                    <Tooltip formatter={(value) => `${value}%`} />
-                                    <Bar dataKey="coverage_rate" fill="#4f46e5" radius={[0, 4, 4, 0]} />
-                                </BarChart>
-                            </ResponsiveContainer>
+                            <AreaChart
+                                className="mt-6 h-64"
+                                data={metrics.distributions_over_time}
+                                index="month"
+                                categories={['Distributions']}
+                                colors={['emerald']}
+                                valueFormatter={(v) => `${v}`}
+                            />
                         )}
-                    </div>
+                    </Card>
 
-                    {/* Commodity breakdown — donut chart */}
-                    <div className="bg-white p-6 shadow-sm sm:rounded-lg">
-                        <h3 className="mb-4 text-lg font-medium text-gray-800">Commodity Distribution Breakdown</h3>
-                        {metrics.commodity_breakdown.length === 0 ? (
-                            <p className="text-sm text-gray-500">No commodity-linked distributions yet.</p>
+                    {/* Coverage by barangay — Bar List */}
+                    <Card>
+                        <Text className="font-semibold text-gray-800">Aid Coverage by Barangay</Text>
+                        {coverageBarListData.length === 0 ? (
+                            <p className="mt-4 text-sm text-gray-500">No profiles recorded yet.</p>
                         ) : (
-                            <ResponsiveContainer width="100%" height={320}>
-                                <PieChart>
-                                    <Pie
-                                        data={metrics.commodity_breakdown}
-                                        dataKey="count"
-                                        nameKey="commodity"
-                                        cx="50%"
-                                        cy="50%"
-                                        innerRadius={60}
-                                        outerRadius={110}
-                                        label={({ commodity, percentage }) => `${commodity} (${percentage}%)`}
-                                    >
-                                        {metrics.commodity_breakdown.map((_, index) => (
-                                            <Cell key={index} fill={COLORS[index % COLORS.length]} />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip formatter={(value, name) => [`${value} distributions`, name]} />
-                                    <Legend />
-                                </PieChart>
-                            </ResponsiveContainer>
+                            <BarList
+                                className="mt-4"
+                                data={coverageBarListData}
+                                color="emerald"
+                                valueFormatter={(v) => `${v}%`}
+                            />
                         )}
-                    </div>
+                    </Card>
 
-                    {/* Program utilization — horizontal bar chart */}
-                    <div className="bg-white p-6 shadow-sm sm:rounded-lg">
-                        <h3 className="mb-4 text-lg font-medium text-gray-800">Program Utilization Rate</h3>
-                        {metrics.program_utilization.length === 0 ? (
-                            <p className="text-sm text-gray-500">No aid programs yet.</p>
+                    {/* Commodity breakdown — Donut */}
+                    <Card>
+                        <Text className="font-semibold text-gray-800">Commodity Distribution Breakdown</Text>
+                        {commodityDonutData.length === 0 ? (
+                            <p className="mt-4 text-sm text-gray-500">No commodity-linked distributions yet.</p>
                         ) : (
-                            <ResponsiveContainer width="100%" height={Math.max(200, metrics.program_utilization.length * 50)}>
-                                <BarChart
-                                    data={metrics.program_utilization}
-                                    layout="vertical"
-                                    margin={{ left: 20 }}
-                                >
-                                    <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                                    <XAxis type="number" unit="%" />
-                                    <YAxis type="category" dataKey="program" width={120} tick={{ fontSize: 12 }} />
-                                    <Tooltip formatter={(value) => `${value}%`} />
-                                    <Bar dataKey="utilization_rate" radius={[0, 4, 4, 0]}>
-                                        {metrics.program_utilization.map((entry, index) => (
-                                            <Cell key={index} fill={entry.utilization_rate > 100 ? '#dc2626' : '#d97706'} />
-                                        ))}
-                                    </Bar>
-                                </BarChart>
-                            </ResponsiveContainer>
+                            <>
+                                <DonutChart
+                                    className="mt-6"
+                                    data={commodityDonutData}
+                                    category="value"
+                                    index="name"
+                                    valueFormatter={(v) => `${v} distributions`}
+                                />
+                                <Legend className="mt-4" categories={commodityDonutData.map((d) => d.name)} />
+                            </>
                         )}
-                    </div>
+                    </Card>
+
+                    {/* Program utilization — Bar List */}
+                    <Card>
+                        <Text className="font-semibold text-gray-800">Program Utilization Rate</Text>
+                        {utilizationBarListData.length === 0 ? (
+                            <p className="mt-4 text-sm text-gray-500">No aid programs yet.</p>
+                        ) : (
+                            <BarList
+                                className="mt-4"
+                                data={utilizationBarListData}
+                                color="amber"
+                                valueFormatter={(v) => `${v}%`}
+                            />
+                        )}
+                    </Card>
 
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </Sidebar>
     );
 }

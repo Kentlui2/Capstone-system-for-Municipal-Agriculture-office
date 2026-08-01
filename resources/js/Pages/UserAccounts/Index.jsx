@@ -1,4 +1,4 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import Sidebar from '@/Layouts/Sidebar';
 import { Head, useForm, router } from '@inertiajs/react';
 import SortableHeader from '@/Components/SortableHeader';
 import { useState } from 'react';
@@ -56,7 +56,7 @@ export default function Index({ users, filters }) {
     };
 
     return (
-        <AuthenticatedLayout
+        <Sidebar
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800">
                     User Account Management
@@ -175,6 +175,6 @@ export default function Index({ users, filters }) {
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </Sidebar>
     );
 }

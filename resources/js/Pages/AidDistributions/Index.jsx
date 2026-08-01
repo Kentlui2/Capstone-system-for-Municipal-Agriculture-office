@@ -1,4 +1,4 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import Sidebar from '@/Layouts/Sidebar';
 import { Head, Link, router } from '@inertiajs/react';
 import SortableHeader from '@/Components/SortableHeader';
 import { useState } from 'react';
@@ -18,7 +18,7 @@ export default function Index({ distributions, programs, filters }) {
     };
 
     return (
-        <AuthenticatedLayout
+        <Sidebar
             header={
                 <div className="flex items-center justify-between">
                     <h2 className="text-xl font-semibold text-gray-800">Aid Distributions</h2>
@@ -146,6 +146,6 @@ export default function Index({ distributions, programs, filters }) {
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </Sidebar>
     );
 }

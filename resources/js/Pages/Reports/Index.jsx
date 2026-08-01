@@ -1,4 +1,4 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import Sidebar from '@/Layouts/Sidebar';
 import { Head } from '@inertiajs/react';
 import { useState } from 'react';
 
@@ -8,7 +8,7 @@ export default function Index({ profiles }) {
     const [barangay, setBarangay] = useState('');
 
     return (
-        <AuthenticatedLayout
+        <Sidebar
             header={<h2 className="text-xl font-semibold text-gray-800">Reports</h2>}
         >
             <Head title="Reports" />
@@ -98,6 +98,6 @@ export default function Index({ profiles }) {
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout >
+        </Sidebar >
     );
 }

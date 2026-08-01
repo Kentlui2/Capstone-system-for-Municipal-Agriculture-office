@@ -133,22 +133,39 @@ class AnalyticsService
                 ->when($this->endDate, fn ($q) => $q->whereDate('distribution_date', '<=', $this->endDate));
         })->count();
     }
-
+    /**
+ * Distributions grouped by month, for trend visualization
+ * (Area Chart / Spark Chart on the Analytics page).
+ */
+public function distributionsOverTime(): array
+{
+    return $this->filteredDistributions()
+        ->selectRaw("TO_CHAR(distribution_date, 'YYYY-MM') as month, COUNT(*) as count")
+        ->groupBy('month')
+        ->orderBy('month')
+        ->get()
+        ->map(fn ($row) => [
+            'month' => $row->month,
+            'Distributions' => $row->count,
+        ])
+        ->toArray();
+}
     /**
      * Bundles all 6 metrics into one result for the Controller.
      */
-    public function getAllMetrics(): array
-    {
-        $coverage = $this->coverageByBarangay();
+ public function getAllMetrics(): array
+{
+    $coverage = $this->coverageByBarangay();
 
-        return [
-            'coverage_by_barangay' => $coverage['all'],
-            'most_served_barangay' => $coverage['most_served'],
-            'least_served_barangay' => $coverage['least_served'],
-            'commodity_breakdown' => $this->commodityBreakdown(),
-            'program_utilization' => $this->programUtilization(),
-            'duplicate_flag_count' => $this->duplicateFlagCount(),
-            'unserved_profiles_count' => $this->unservedProfilesCount(),
-        ];
-    }
+    return [
+        'coverage_by_barangay' => $coverage['all'],
+        'most_served_barangay' => $coverage['most_served'],
+        'least_served_barangay' => $coverage['least_served'],
+        'commodity_breakdown' => $this->commodityBreakdown(),
+        'program_utilization' => $this->programUtilization(),
+        'duplicate_flag_count' => $this->duplicateFlagCount(),
+        'unserved_profiles_count' => $this->unservedProfilesCount(),
+        'distributions_over_time' => $this->distributionsOverTime(), 
+    ];
+}
 }

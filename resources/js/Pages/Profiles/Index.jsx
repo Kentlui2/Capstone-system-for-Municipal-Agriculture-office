@@ -1,4 +1,4 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import Sidebar from '@/Layouts/Sidebar';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import SearchableSelect from '@/Components/SearchableSelect';
 import SortableHeader from '@/Components/SortableHeader';
@@ -37,7 +37,7 @@ export default function Index({ profiles, filters }) {
     };
 
     return (
-        <AuthenticatedLayout
+        <Sidebar
             header={
                 <div className="flex items-center justify-between">
                     <h2 className="text-xl font-semibold leading-tight text-gray-800">
@@ -189,6 +189,6 @@ export default function Index({ profiles, filters }) {
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </Sidebar>
     );
 }

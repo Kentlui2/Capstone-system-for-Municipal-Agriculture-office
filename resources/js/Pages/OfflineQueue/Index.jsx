@@ -1,4 +1,4 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import Sidebar from '@/Layouts/Sidebar';
 import { Head } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import { getDB } from '@/offline/db';
@@ -55,7 +55,7 @@ export default function Index() {
     };
 
     return (
-        <AuthenticatedLayout
+        <Sidebar
             header={<h2 className="text-xl font-semibold text-gray-800">Offline Sync Queue</h2>}
         >
             <Head title="Offline Sync Queue" />
@@ -136,6 +136,6 @@ export default function Index() {
 
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </Sidebar>
     );
 }
