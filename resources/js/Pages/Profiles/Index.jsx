@@ -1,6 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import SearchableSelect from '@/Components/SearchableSelect';
+import SortableHeader from '@/Components/SortableHeader';
 import { BARANGAYS } from '@/constants/barangays';
 import { useState } from 'react';
 
@@ -95,9 +96,30 @@ export default function Index({ profiles, filters }) {
                             <table className="min-w-full divide-y divide-gray-200">
                                 <thead>
                                     <tr className="text-left text-sm font-medium text-gray-500">
-                                        <th className="pb-3 pr-4">Name</th>
-                                        <th className="pb-3 pr-4">Sector</th>
-                                        <th className="pb-3 pr-4">Barangay</th>
+                                        <SortableHeader
+                                            label="Name"
+                                            field="last_name"
+                                            currentSort={filters.sort}
+                                            currentDirection={filters.direction}
+                                            routeName="profiles.index"
+                                            otherParams={{ sector, barangay: barangay === 'All Barangays' ? '' : barangay, search }}
+                                        />
+                                        <SortableHeader
+                                            label="Sector"
+                                            field="sector"
+                                            currentSort={filters.sort}
+                                            currentDirection={filters.direction}
+                                            routeName="profiles.index"
+                                            otherParams={{ sector, barangay: barangay === 'All Barangays' ? '' : barangay, search }}
+                                        />
+                                        <SortableHeader
+                                            label="Barangay"
+                                            field="barangay"
+                                            currentSort={filters.sort}
+                                            currentDirection={filters.direction}
+                                            routeName="profiles.index"
+                                            otherParams={{ sector, barangay: barangay === 'All Barangays' ? '' : barangay, search }}
+                                        />
                                         <th className="pb-3 pr-4">Status</th>
                                         <th className="pb-3">Actions</th>
                                     </tr>

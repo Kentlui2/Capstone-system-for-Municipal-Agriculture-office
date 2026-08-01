@@ -1,5 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router } from '@inertiajs/react';
+import SortableHeader from '@/Components/SortableHeader';
 import { useState } from 'react';
 
 export default function Index({ users, filters }) {
@@ -113,9 +114,9 @@ export default function Index({ users, filters }) {
                             <table className="min-w-full divide-y divide-gray-200">
                                 <thead>
                                     <tr className="text-left text-sm font-medium text-gray-500">
-                                        <th className="pb-3 pr-4">Name</th>
-                                        <th className="pb-3 pr-4">Email</th>
-                                        <th className="pb-3 pr-4">Role</th>
+                                        <SortableHeader label="Name" field="name" currentSort={filters.sort} currentDirection={filters.direction} routeName="user-accounts.index" otherParams={{ role, status }} />
+                                        <SortableHeader label="Email" field="email" currentSort={filters.sort} currentDirection={filters.direction} routeName="user-accounts.index" otherParams={{ role, status }} />
+                                        <SortableHeader label="Role" field="role" currentSort={filters.sort} currentDirection={filters.direction} routeName="user-accounts.index" otherParams={{ role, status }} />
                                         <th className="pb-3 pr-4">Status</th>
                                         <th className="pb-3">Actions</th>
                                     </tr>

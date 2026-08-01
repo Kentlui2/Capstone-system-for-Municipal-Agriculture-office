@@ -14,27 +14,37 @@ class UserAccountController extends Controller
      * List all user accounts — Admin only, enforced via UserPolicy.
      */
     public function index(): Response
-{
-    $this->authorize('viewAny', User::class);
+    {
+        $this->authorize('viewAny', User::class);
 
-    $users = User::query()
-        ->when(request('role'), fn ($q, $role) => $q->where('role', $role))
-        ->when(request('status'), fn ($q, $status) => $q->where('status', $status))
-        ->orderByRaw("
+        $sort = request('sort');
+        $direction = request('direction', 'asc');
+
+        $allowedSorts = ['name', 'email', 'role'];
+
+        $query = User::query()
+            ->when(request('role'), fn ($q, $role) => $q->where('role', $role))
+            ->when(request('status'), fn ($q, $status) => $q->where('status', $status));
+
+        if ($sort && in_array($sort, $allowedSorts)) {
+            $query->orderBy($sort, $direction);
+        } else {
+        $query->orderByRaw("
             CASE status
                 WHEN 'pending' THEN 1
                 WHEN 'approved' THEN 2
                 WHEN 'rejected' THEN 3
             END
-        ")
-        ->orderBy('name')
-        ->get(['id', 'name', 'email', 'role', 'status', 'created_at']);
+        ")->orderBy('name');
+        }
 
-    return Inertia::render('UserAccounts/Index', [
-        'users' => $users,
-        'filters' => request()->only(['role', 'status']),
-    ]);
-}
+        $users = $query->get(['id', 'name', 'email', 'role', 'status', 'created_at']);
+
+        return Inertia::render('UserAccounts/Index', [
+            'users' => $users,
+            'filters' => request()->only(['role', 'status', 'sort', 'direction']),
+        ]);
+    }
 
     /**
      * Show a single user account's details — Admin only.

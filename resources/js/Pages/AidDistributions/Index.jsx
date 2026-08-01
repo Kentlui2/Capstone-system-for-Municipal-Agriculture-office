@@ -1,5 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
+import SortableHeader from '@/Components/SortableHeader';
 import { useState } from 'react';
 
 export default function Index({ distributions, programs, filters }) {
@@ -82,8 +83,8 @@ export default function Index({ distributions, programs, filters }) {
                                 <tr className="text-left text-sm font-medium text-gray-500">
                                     <th className="pb-3 pr-4">Beneficiary</th>
                                     <th className="pb-3 pr-4">Program</th>
-                                    <th className="pb-3 pr-4">Quantity</th>
-                                    <th className="pb-3 pr-4">Date</th>
+                                    <SortableHeader label="Quantity" field="quantity" currentSort={filters.sort} currentDirection={filters.direction} routeName="aid-distributions.index" otherParams={{ program_id: programId, flagged }} />
+                                    <SortableHeader label="Date" field="distribution_date" currentSort={filters.sort} currentDirection={filters.direction} routeName="aid-distributions.index" otherParams={{ program_id: programId, flagged }} />
                                     <th className="pb-3 pr-4">Flags</th>
                                     <th className="pb-3 pr-4">Encoded By</th>
                                     <th className="pb-3">Actions</th>

@@ -21,24 +21,32 @@ class AidDistributionController extends Controller
     /**
      * List all recorded distributions — both roles.
      */
- public function index(): Response
-{
-    $this->authorize('viewAny', AidDistribution::class);
+public function index(): Response
+    {
+        $this->authorize('viewAny', AidDistribution::class);
 
-    $distributions = AidDistribution::with(['profile', 'program', 'encoder'])
-        ->when(request('program_id'), fn ($q, $programId) => $q->where('program_id', $programId))
-        ->when(request('flagged') === 'duplicate', fn ($q) => $q->where('is_flagged', true))
-        ->when(request('flagged') === 'over_allocation', fn ($q) => $q->where('exceeds_allocation', true))
-        ->orderByDesc('distribution_date')
-        ->paginate(20)
-        ->withQueryString();
+        $sort = request('sort', 'distribution_date');
+        $direction = request('direction', 'desc');
 
-    return Inertia::render('AidDistributions/Index', [
-        'distributions' => $distributions,
-        'programs' => AidProgram::orderBy('name')->get(['id', 'name']),
-        'filters' => request()->only(['program_id', 'flagged']),
-    ]);
-}
+        $allowedSorts = ['distribution_date', 'quantity'];
+        if (! in_array($sort, $allowedSorts)) {
+            $sort = 'distribution_date';
+        }
+
+        $distributions = AidDistribution::with(['profile', 'program', 'encoder'])
+            ->when(request('program_id'), fn ($q, $programId) => $q->where('program_id', $programId))
+            ->when(request('flagged') === 'duplicate', fn ($q) => $q->where('is_flagged', true))
+            ->when(request('flagged') === 'over_allocation', fn ($q) => $q->where('exceeds_allocation', true))
+            ->orderBy($sort, $direction)
+            ->paginate(20)
+            ->withQueryString();
+
+        return Inertia::render('AidDistributions/Index', [
+            'distributions' => $distributions,
+            'programs' => AidProgram::orderBy('name')->get(['id', 'name']),
+            'filters' => request()->only(['program_id', 'flagged', 'sort', 'direction']),
+        ]);
+    }
 
     /**
      * Show the create form — needs profiles and active programs

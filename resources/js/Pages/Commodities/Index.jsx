@@ -1,5 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router, usePage } from '@inertiajs/react';
+import SortableHeader from '@/Components/SortableHeader';
 import { useState } from 'react';
 
 export default function Index({ commodities, filters }) {
@@ -167,9 +168,30 @@ export default function Index({ commodities, filters }) {
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead>
                                 <tr className="text-left text-sm font-medium text-gray-500">
-                                    <th className="pb-3 pr-4">Name</th>
-                                    <th className="pb-3 pr-4">Category</th>
-                                    <th className="pb-3 pr-4">Status</th>
+                                    <SortableHeader
+                                        label="Name"
+                                        field="name"
+                                        currentSort={filters.sort}
+                                        currentDirection={filters.direction}
+                                        routeName="commodities.index"
+                                        otherParams={{ category, status }}
+                                    />
+                                    <SortableHeader
+                                        label="Category"
+                                        field="category"
+                                        currentSort={filters.sort}
+                                        currentDirection={filters.direction}
+                                        routeName="commodities.index"
+                                        otherParams={{ category, status }}
+                                    />
+                                    <SortableHeader
+                                        label="Status"
+                                        field="status"
+                                        currentSort={filters.sort}
+                                        currentDirection={filters.direction}
+                                        routeName="commodities.index"
+                                        otherParams={{ category, status }}
+                                    />
                                     {isAdmin && <th className="pb-3">Actions</th>}
                                 </tr>
                             </thead>

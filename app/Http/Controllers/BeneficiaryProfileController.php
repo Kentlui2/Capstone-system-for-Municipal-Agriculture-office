@@ -15,28 +15,37 @@ use Inertia\Response;
 class BeneficiaryProfileController extends Controller
 {
     public function index(): Response
-    {
-        $this->authorize('viewAny', Profile::class);
+{
+    $this->authorize('viewAny', Profile::class);
 
-        $profiles = Profile::query()
-            ->when(request('sector'), fn ($q, $sector) => $q->where('sector', $sector))
-            ->when(request('barangay'), fn ($q, $barangay) => $q->where('barangay', $barangay))
-            ->when(request('commodity_id'), function ($q, $commodityId) {
-            $q->whereHas('commodities', fn ($q) => $q->where('commodities.id', $commodityId));
-            })
-            ->when(request('search'), function ($q, $search) {
-                $q->where(fn ($q) => $q
-                    ->where('first_name', 'ilike', "%{$search}%")
-                    ->orWhere('last_name', 'ilike', "%{$search}%"));
-            })
-            ->orderBy('last_name')
-            ->paginate(20);
+    $sort = request('sort', 'last_name');
+    $direction = request('direction', 'asc');
 
-        return Inertia::render('Profiles/Index', [
-            'profiles' => $profiles,
-            'filters' => request()->only(['sector', 'barangay', 'commodity_id', 'search']),
-        ]);
+    $allowedSorts = ['last_name', 'sector', 'barangay'];
+    if (! in_array($sort, $allowedSorts)) {
+        $sort = 'last_name';
     }
+
+    $profiles = Profile::query()
+        ->when(request('sector'), fn ($q, $sector) => $q->where('sector', $sector))
+        ->when(request('barangay'), fn ($q, $barangay) => $q->where('barangay', $barangay))
+        ->when(request('commodity_id'), function ($q, $commodityId) {
+            $q->whereHas('commodities', fn ($q) => $q->where('commodities.id', $commodityId));
+        })
+        ->when(request('search'), function ($q, $search) {
+            $q->where(fn ($q) => $q
+                ->where('first_name', 'ilike', "%{$search}%")
+                ->orWhere('last_name', 'ilike', "%{$search}%"));
+        })
+        ->orderBy($sort, $direction)
+        ->paginate(20)
+        ->withQueryString();
+
+    return Inertia::render('Profiles/Index', [
+        'profiles' => $profiles,
+        'filters' => request()->only(['sector', 'barangay', 'commodity_id', 'search', 'sort', 'direction']),
+    ]);
+}
 
     public function create(): Response
     {

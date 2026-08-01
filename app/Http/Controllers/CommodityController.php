@@ -19,16 +19,24 @@ class CommodityController extends Controller
     {
         $this->authorize('viewAny', Commodity::class);
 
+        $sort = request('sort', 'category');
+        $direction = request('direction', 'asc');
+
+        $allowedSorts = ['name', 'category', 'status'];
+        if (! in_array($sort, $allowedSorts)) {
+            $sort = 'category';
+        }
+
         $commodities = Commodity::query()
-            ->when(request('category'), fn($q, $category) => $q->where('category', $category))
-            ->when(request('status'), fn($q, $status) => $q->where('status', $status))
-            ->orderBy('category')
-            ->orderBy('name')
+            ->when(request('category'), fn ($q, $category) => $q->where('category', $category))
+            ->when(request('status'), fn ($q, $status) => $q->where('status', $status))
+            ->orderBy($sort, $direction)
+            ->orderBy('name') // secondary sort for stable ordering
             ->get();
 
         return Inertia::render('Commodities/Index', [
             'commodities' => $commodities,
-            'filters' => request()->only(['category', 'status']),
+            'filters' => request()->only(['category', 'status', 'sort', 'direction']),
         ]);
     }
 
