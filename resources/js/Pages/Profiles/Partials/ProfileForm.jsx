@@ -2,11 +2,10 @@ import SectorFieldsInput from './SectorFieldsInput';
 import CommodityPicker from './CommodityPicker';
 import SearchableSelect from '@/Components/SearchableSelect';
 import { BARANGAYS } from '@/constants/barangays';
+import { TextInput, Select, SelectItem, DatePicker } from '@tremor/react';
 
 export default function ProfileForm({ data, setData, errors, commodities, existingPhotoUrl }) {
     const handleSectorChange = (newSector) => {
-        // Reset sector-dependent fields when sector changes,
-        // since a farmer's RSBSA number is meaningless for a raiser
         setData({
             ...data,
             sector: newSector,
@@ -16,60 +15,53 @@ export default function ProfileForm({ data, setData, errors, commodities, existi
     };
 
     return (
-        <>
-            <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-6">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">First Name</label>
-                    <input
-                        type="text"
+                    <label className="mb-1 block text-sm font-medium text-gray-700">First Name</label>
+                    <TextInput
                         value={data.first_name}
-                        onChange={(e) => setData('first_name', e.target.value)}
-                        className="mt-1 block w-full rounded border-gray-300 text-sm"
+                        onValueChange={(v) => setData('first_name', v)}
+                        error={!!errors.first_name}
+                        errorMessage={errors.first_name}
                     />
-                    {errors.first_name && <p className="mt-1 text-sm text-red-600">{errors.first_name}</p>}
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Last Name</label>
-                    <input
-                        type="text"
+                    <label className="mb-1 block text-sm font-medium text-gray-700">Last Name</label>
+                    <TextInput
                         value={data.last_name}
-                        onChange={(e) => setData('last_name', e.target.value)}
-                        className="mt-1 block w-full rounded border-gray-300 text-sm"
+                        onValueChange={(v) => setData('last_name', v)}
+                        error={!!errors.last_name}
+                        errorMessage={errors.last_name}
                     />
-                    {errors.last_name && <p className="mt-1 text-sm text-red-600">{errors.last_name}</p>}
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Birthdate</label>
+                    <label className="mb-1 block text-sm font-medium text-gray-700">Birthdate</label>
                     <input
                         type="date"
                         value={data.birthdate}
                         onChange={(e) => setData('birthdate', e.target.value)}
-                        className="mt-1 block w-full rounded border-gray-300 text-sm"
+                        className="block w-full rounded-tremor-default border border-gray-300 px-3 py-2 text-sm shadow-tremor-input focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
                     />
                     {errors.birthdate && <p className="mt-1 text-sm text-red-600">{errors.birthdate}</p>}
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Sex</label>
-                    <select
-                        value={data.sex}
-                        onChange={(e) => setData('sex', e.target.value)}
-                        className="mt-1 block w-full rounded border-gray-300 text-sm"
-                    >
-                        <option value="">Select...</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                    </select>
+                    <label className="mb-1 block text-sm font-medium text-gray-700">Sex</label>
+                    <Select value={data.sex} onValueChange={(v) => setData('sex', v)} placeholder="Select...">
+                        <SelectItem value="male">Male</SelectItem>
+                        <SelectItem value="female">Female</SelectItem>
+                    </Select>
                     {errors.sex && <p className="mt-1 text-sm text-red-600">{errors.sex}</p>}
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Barangay</label>
+                    <label className="mb-1 block text-sm font-medium text-gray-700">Barangay</label>
                     <SearchableSelect
                         value={data.barangay}
-                        onChange={(value) => setData('barangay', value)}
+                        onChange={(v) => setData('barangay', v)}
                         options={BARANGAYS}
                         placeholder="Select barangay..."
                     />
@@ -77,52 +69,43 @@ export default function ProfileForm({ data, setData, errors, commodities, existi
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Street Address</label>
-                    <input
-                        type="text"
+                    <label className="mb-1 block text-sm font-medium text-gray-700">Street Address</label>
+                    <TextInput
                         value={data.street_address}
-                        onChange={(e) => setData('street_address', e.target.value)}
-                        className="mt-1 block w-full rounded border-gray-300 text-sm"
+                        onValueChange={(v) => setData('street_address', v)}
                     />
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Contact Number</label>
-                    <input
-                        type="text"
+                    <label className="mb-1 block text-sm font-medium text-gray-700">Contact Number</label>
+                    <TextInput
                         value={data.contact_number}
-                        onChange={(e) => setData('contact_number', e.target.value)}
-                        className="mt-1 block w-full rounded border-gray-300 text-sm"
+                        onValueChange={(v) => setData('contact_number', v)}
                     />
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Photo</label>
+                    <label className="mb-1 block text-sm font-medium text-gray-700">Photo</label>
                     {existingPhotoUrl && (
-                        <img src={existingPhotoUrl} alt="Current photo" className="mb-2 h-20 w-20 rounded object-cover" />
+                        <img src={existingPhotoUrl} alt="Current photo" className="mb-2 h-16 w-16 rounded-lg object-cover" />
                     )}
                     <input
                         type="file"
                         accept="image/*"
                         onChange={(e) => setData('photo', e.target.files[0])}
-                        className="mt-1 block w-full text-sm"
+                        className="block w-full text-sm text-gray-600 file:mr-4 file:rounded-lg file:border-0 file:bg-emerald-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-emerald-700 hover:file:bg-emerald-100"
                     />
                     {errors.photo && <p className="mt-1 text-sm text-red-600">{errors.photo}</p>}
                 </div>
             </div>
 
             <div>
-                <label className="block text-sm font-medium text-gray-700">Sector</label>
-                <select
-                    value={data.sector}
-                    onChange={(e) => handleSectorChange(e.target.value)}
-                    className="mt-1 block w-full rounded border-gray-300 text-sm"
-                >
-                    <option value="">Select...</option>
-                    <option value="farmer">Farmer</option>
-                    <option value="fisherfolk">Fisherfolk</option>
-                    <option value="raiser">Raiser</option>
-                </select>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Sector</label>
+                <Select value={data.sector} onValueChange={handleSectorChange} placeholder="Select...">
+                    <SelectItem value="farmer">Farmer</SelectItem>
+                    <SelectItem value="fisherfolk">Fisherfolk</SelectItem>
+                    <SelectItem value="raiser">Raiser</SelectItem>
+                </Select>
                 {errors.sector && <p className="mt-1 text-sm text-red-600">{errors.sector}</p>}
             </div>
 
@@ -142,6 +125,6 @@ export default function ProfileForm({ data, setData, errors, commodities, existi
                     onChange={(rows) => setData('commodities', rows)}
                 />
             )}
-        </>
+        </div>
     );
 }

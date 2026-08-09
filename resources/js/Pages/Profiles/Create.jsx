@@ -88,10 +88,10 @@ export default function Create({ commodities }) {
 
                             <button
                                 type="submit"
-                                disabled={processing || submittingOffline}
-                                className="rounded bg-indigo-600 px-4 py-2 text-sm text-white hover:bg-indigo-700 disabled:opacity-50"
+                                disabled={processing}
+                                className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
                             >
-                                {submittingOffline ? 'Saving locally...' : 'Save Profile'}
+                                Save Profile
                             </button>
                         </form>
                     </div>

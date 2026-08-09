@@ -1,7 +1,9 @@
 <?php
 
 namespace App\Http\Controllers\Auth;
-
+use App\Models\Profile;
+use App\Models\AidDistribution;
+use App\Models\AidProgram;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -19,10 +21,16 @@ class RegisteredUserController extends Controller
     /**
      * Display the registration view.
      */
-    public function create(): Response
-    {
-        return Inertia::render('Auth/Register');
-    }
+  public function create(): Response
+{
+    return Inertia::render('Auth/Register', [
+        'stats' => [
+            'profiles' => Profile::count(),
+            'distributions' => AidDistribution::count(),
+            'active_programs' => AidProgram::where('status', 'active')->count(),
+        ],
+    ]);
+}
 
     /**
      * Handle an incoming registration request.
