@@ -1,4 +1,4 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import Sidebar from '@/Layouts/Sidebar';
 import { Head, Link } from '@inertiajs/react';
 
 export default function Show({ profile }) {
@@ -9,7 +9,7 @@ export default function Show({ profile }) {
     };
 
     return (
-        <AuthenticatedLayout
+        <Sidebar
             header={
                 <div className="flex items-center justify-between">
                     <h2 className="text-xl font-semibold text-gray-800">
@@ -147,6 +147,6 @@ export default function Show({ profile }) {
 
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </Sidebar>
     );
 }

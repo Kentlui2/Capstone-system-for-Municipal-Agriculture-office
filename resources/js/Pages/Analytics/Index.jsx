@@ -44,31 +44,29 @@ export default function Index({ metrics, programs, filters }) {
         <Sidebar header={<h2 className="text-xl font-semibold text-gray-800">Analytics</h2>}>
             <Head title="Analytics" />
 
-            <div className="py-12">
-                <div className="mx-auto max-w-6xl space-y-6 sm:px-6 lg:px-8">
+            <div className="px-4 py-8 sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-6xl space-y-6">
 
                     {/* Filter bar */}
-                    <Card>
-                        <div className="flex flex-wrap items-end gap-3">
-                            <div>
-                                <label className="block text-xs text-gray-500">Program</label>
-                                <select value={programId} onChange={(e) => setProgramId(e.target.value)} className="mt-1 rounded border-gray-300 text-sm">
-                                    <option value="">All Programs</option>
-                                    {programs.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-xs text-gray-500">Start Date</label>
-                                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="mt-1 rounded border-gray-300 text-sm" />
-                            </div>
-                            <div>
-                                <label className="block text-xs text-gray-500">End Date</label>
-                                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="mt-1 rounded border-gray-300 text-sm" />
-                            </div>
-                            <button onClick={applyFilters} className="rounded bg-emerald-600 px-4 py-2 text-sm text-white hover:bg-emerald-700">Apply</button>
-                            <button onClick={resetFilters} className="rounded bg-gray-200 px-4 py-2 text-sm text-gray-800 hover:bg-gray-300">Reset</button>
+                    <div className="flex flex-wrap items-end gap-3 rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+                        <div>
+                            <label className="block text-xs text-gray-500">Program</label>
+                            <select value={programId} onChange={(e) => setProgramId(e.target.value)} className="mt-1 rounded-lg border-gray-300 text-sm">
+                                <option value="">All Programs</option>
+                                {programs.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                            </select>
                         </div>
-                    </Card>
+                        <div>
+                            <label className="block text-xs text-gray-500">Start Date</label>
+                            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="mt-1 rounded-lg border-gray-300 text-sm" />
+                        </div>
+                        <div>
+                            <label className="block text-xs text-gray-500">End Date</label>
+                            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="mt-1 rounded-lg border-gray-300 text-sm" />
+                        </div>
+                        <button onClick={applyFilters} className="rounded-lg bg-gray-800 px-4 py-2 text-sm text-white hover:bg-gray-900">Filter</button>
+                        <button onClick={resetFilters} className="rounded-lg bg-gray-100 px-4 py-2 text-sm text-gray-700 hover:bg-gray-200">Reset</button>
+                    </div>
 
                     {/* Stat cards */}
                     <div className="grid grid-cols-2 gap-6 md:grid-cols-4">

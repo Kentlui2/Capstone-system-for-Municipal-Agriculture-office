@@ -1,21 +1,17 @@
 import Sidebar from '@/Layouts/Sidebar';
-import { Head, useForm, router, usePage } from '@inertiajs/react';
+import { Head, Link, useForm, router, usePage } from '@inertiajs/react';
 import { useState, useMemo } from 'react';
 import DataTable from '@/Components/DataTable';
 import Badge from '@/Components/Badge';
 import { RiAddLine, RiEditLine, RiDeleteBinLine } from '@remixicon/react';
+
+import ActiveFilters from '@/Components/ActiveFilters';
 
 const categoryColor = { Crops: 'green', Aquatic: 'blue', Livestock: 'amber' };
 
 export default function Index({ commodities, filters }) {
     const { auth } = usePage().props;
     const isAdmin = auth.user.role === 'admin';
-
-    const [showAddForm, setShowAddForm] = useState(false);
-    const [editingId, setEditingId] = useState(null);
-
-    const addForm = useForm({ name: '', category: 'Crops', status: 'active' });
-    const editForm = useForm({ name: '', category: '', status: '' });
 
     const [category, setCategory] = useState(filters.category || '');
     const [status, setStatus] = useState(filters.status || '');
@@ -28,30 +24,6 @@ export default function Index({ commodities, filters }) {
         setCategory('');
         setStatus('');
         router.get(route('commodities.index'));
-    };
-
-    const submitAdd = (e) => {
-        e.preventDefault();
-        addForm.post(route('commodities.store'), {
-            preserveScroll: true,
-            onSuccess: () => {
-                addForm.reset();
-                setShowAddForm(false);
-            },
-        });
-    };
-
-    const startEdit = (commodity) => {
-        setEditingId(commodity.id);
-        editForm.setData({ name: commodity.name, category: commodity.category, status: commodity.status });
-    };
-
-    const submitEdit = (e) => {
-        e.preventDefault();
-        editForm.put(route('commodities.update', editingId), {
-            preserveScroll: true,
-            onSuccess: () => setEditingId(null),
-        });
     };
 
     const deleteCommodity = (commodity) => {
@@ -81,9 +53,9 @@ export default function Index({ commodities, filters }) {
             enableSorting: false,
             cell: (info) => (
                 <div className="flex gap-3">
-                    <button onClick={() => startEdit(info.row.original)} className="flex items-center gap-1 text-sm text-emerald-600 hover:text-emerald-800">
+                    <Link href={route('commodities.edit', info.row.original.id)} className="flex items-center gap-1 text-sm text-emerald-600 hover:text-emerald-800">
                         <RiEditLine className="h-4 w-4" /> Edit
-                    </button>
+                    </Link>
                     <button onClick={() => deleteCommodity(info.row.original)} className="flex items-center gap-1 text-sm text-red-600 hover:text-red-800">
                         <RiDeleteBinLine className="h-4 w-4" /> Delete
                     </button>
@@ -98,13 +70,12 @@ export default function Index({ commodities, filters }) {
                 <div className="flex items-center justify-between">
                     <h2 className="text-xl font-semibold text-gray-800">Commodities</h2>
                     {isAdmin && (
-                        <button
-                            onClick={() => setShowAddForm(!showAddForm)}
+                        <Link
+                            href={route('commodities.create')}
                             className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
                         >
-                            <RiAddLine className="h-4 w-4" />
-                            {showAddForm ? 'Cancel' : 'Add Commodity'}
-                        </button>
+                            <RiAddLine className="h-4 w-4" /> Add Commodity
+                        </Link>
                     )}
                 </div>
             }
@@ -115,8 +86,7 @@ export default function Index({ commodities, filters }) {
                 <div className="mx-auto max-w-4xl">
                     <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
 
-                        {/* Filter bar */}
-                        <div className="mb-6 flex flex-wrap items-end gap-3">
+                        <div className="mb-4 flex flex-wrap items-end gap-3">
                             <div>
                                 <label className="block text-xs text-gray-500">Category</label>
                                 <select value={category} onChange={(e) => setCategory(e.target.value)} className="mt-1 rounded-lg border-gray-300 text-sm">
@@ -138,85 +108,20 @@ export default function Index({ commodities, filters }) {
                             <button onClick={resetFilters} className="rounded-lg bg-gray-100 px-4 py-2 text-sm text-gray-700 hover:bg-gray-200">Reset</button>
                         </div>
 
-                        {/* Inline add form */}
-                        {showAddForm && (
-                            <form onSubmit={submitAdd} className="mb-6 flex items-end gap-3 rounded-lg border border-gray-100 bg-gray-50 p-4">
-                                <div>
-                                    <label className="block text-xs text-gray-500">Name</label>
-                                    <input
-                                        type="text"
-                                        value={addForm.data.name}
-                                        onChange={(e) => addForm.setData('name', e.target.value)}
-                                        className="mt-1 rounded-lg border-gray-300 text-sm"
-                                    />
-                                    {addForm.errors.name && <p className="text-xs text-red-600">{addForm.errors.name}</p>}
-                                </div>
-                                <div>
-                                    <label className="block text-xs text-gray-500">Category</label>
-                                    <select
-                                        value={addForm.data.category}
-                                        onChange={(e) => addForm.setData('category', e.target.value)}
-                                        className="mt-1 rounded-lg border-gray-300 text-sm"
-                                    >
-                                        <option value="Crops">Crops</option>
-                                        <option value="Aquatic">Aquatic</option>
-                                        <option value="Livestock">Livestock</option>
-                                    </select>
-                                </div>
-                                <button type="submit" disabled={addForm.processing} className="rounded-lg bg-emerald-600 px-4 py-2 text-sm text-white hover:bg-emerald-700">
-                                    Save
-                                </button>
-                            </form>
-                        )}
-
-                        {/* Inline edit form (shown above table when editing) */}
-                        {editingId && (
-                            <form onSubmit={submitEdit} className="mb-6 flex items-end gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-4">
-                                <div>
-                                    <label className="block text-xs text-gray-500">Name</label>
-                                    <input
-                                        type="text"
-                                        value={editForm.data.name}
-                                        onChange={(e) => editForm.setData('name', e.target.value)}
-                                        className="mt-1 rounded-lg border-gray-300 text-sm"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-xs text-gray-500">Category</label>
-                                    <select
-                                        value={editForm.data.category}
-                                        onChange={(e) => editForm.setData('category', e.target.value)}
-                                        className="mt-1 rounded-lg border-gray-300 text-sm"
-                                    >
-                                        <option value="Crops">Crops</option>
-                                        <option value="Aquatic">Aquatic</option>
-                                        <option value="Livestock">Livestock</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-xs text-gray-500">Status</label>
-                                    <select
-                                        value={editForm.data.status}
-                                        onChange={(e) => editForm.setData('status', e.target.value)}
-                                        className="mt-1 rounded-lg border-gray-300 text-sm"
-                                    >
-                                        <option value="active">Active</option>
-                                        <option value="inactive">Inactive</option>
-                                    </select>
-                                </div>
-                                <button type="submit" disabled={editForm.processing} className="rounded-lg bg-emerald-600 px-4 py-2 text-sm text-white hover:bg-emerald-700">
-                                    Save
-                                </button>
-                                <button type="button" onClick={() => setEditingId(null)} className="rounded-lg bg-gray-200 px-4 py-2 text-sm text-gray-700 hover:bg-gray-300">
-                                    Cancel
-                                </button>
-                            </form>
-                        )}
+                        <ActiveFilters
+                            filters={[
+                                { label: 'Category', value: category, displayValue: category, onRemove: () => { setCategory(''); router.get(route('commodities.index'), { status }); } },
+                                { label: 'Status', value: status, displayValue: status, onRemove: () => { setStatus(''); router.get(route('commodities.index'), { category }); } },
+                            ]}
+                            onClearAll={resetFilters}
+                        />
 
                         <DataTable
                             data={commodities}
                             columns={columns}
-                            emptyMessage="No commodities found."
+                            emptyMessage="No commodities registered yet."
+                            emptyActionLink={isAdmin ? route('commodities.create') : undefined}
+                            emptyActionLabel="Add Commodity"
                         />
                     </div>
                 </div>

@@ -1,9 +1,9 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import Sidebar from '@/Layouts/Sidebar';
 import { Head } from '@inertiajs/react';
 
 export default function Show({ distribution }) {
     return (
-        <AuthenticatedLayout
+        <Sidebar
             header={<h2 className="text-xl font-semibold text-gray-800">Distribution Details</h2>}
         >
             <Head title="Distribution Details" />
@@ -67,6 +67,6 @@ export default function Show({ distribution }) {
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </Sidebar>
     );
 }

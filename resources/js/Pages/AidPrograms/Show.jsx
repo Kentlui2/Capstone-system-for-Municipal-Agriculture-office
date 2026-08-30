@@ -1,9 +1,9 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import Sidebar from '@/Layouts/Sidebar';
 import { Head, Link } from '@inertiajs/react';
 
 export default function Show({ program, profiles }) {
     return (
-        <AuthenticatedLayout
+        <Sidebar
             header={<h2 className="text-xl font-semibold text-gray-800">{program.name}</h2>}
         >
             <Head title={program.name} />
@@ -71,6 +71,6 @@ export default function Show({ program, profiles }) {
 
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </Sidebar>
     );
 }

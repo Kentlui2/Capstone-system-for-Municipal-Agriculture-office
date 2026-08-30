@@ -6,7 +6,9 @@ import {
 } from '@tanstack/react-table';
 import { RiArrowUpSLine, RiArrowDownSLine, RiArrowUpDownLine, RiArrowLeftSLine, RiArrowRightSLine } from '@remixicon/react';
 
-export default function DataTable({ data, columns, pagination, emptyMessage = 'No records found.' }) {
+import EmptyState from '@/Components/EmptyState';
+
+export default function DataTable({ data, columns, pagination, emptyMessage = 'No records found.', emptyState, emptyActionLink, emptyActionLabel }) {
     const table = useReactTable({
         data,
         columns,
@@ -57,7 +59,13 @@ export default function DataTable({ data, columns, pagination, emptyMessage = 'N
                 </table>
 
                 {data.length === 0 && (
-                    <p className="py-10 text-center text-sm text-gray-500">{emptyMessage}</p>
+                    emptyState ? emptyState : (
+                        <EmptyState
+                            title={emptyMessage}
+                            actionLink={emptyActionLink}
+                            actionLabel={emptyActionLabel}
+                        />
+                    )
                 )}
             </div>
 

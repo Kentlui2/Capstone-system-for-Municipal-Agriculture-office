@@ -46,7 +46,24 @@ class AidProgramController extends Controller
             ->route('aid-programs.index')
             ->with('success', 'Aid program created successfully.');
     }
+    
+    public function create(): Response
+    {
+        $this->authorize('create', AidProgram::class);
 
+        return Inertia::render('AidPrograms/Create');
+    }
+
+    
+    public function edit(AidProgram $aidProgram): Response
+    {
+        $this->authorize('update', $aidProgram);
+
+        return Inertia::render('AidPrograms/Edit', [
+            'program' => $aidProgram,
+        ]);
+    }
+    
     /**
      * Update an existing aid program — Admin only.
      */

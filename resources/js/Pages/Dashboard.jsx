@@ -1,5 +1,5 @@
 import Sidebar from '@/Layouts/Sidebar';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { subscribeToPushNotifications } from '@/offline/pushNotifications';
 import { useState } from 'react';
 import { Card, Metric, Text, Flex, BarChart, DonutChart, Legend } from '@tremor/react';
@@ -8,9 +8,10 @@ import {
     RiUserAddLine, RiFileAddLine, RiFileTextLine, RiBarChartBoxLine,
 } from '@remixicon/react';
 
-const SECTOR_COLORS = { farmer: 'emerald', fisherfolk: 'blue', raiser: 'amber' };
-
 export default function Dashboard({ stats }) {
+    const { auth } = usePage().props;
+    const isAdmin = auth.user.role === 'admin';
+
     const [notifStatus, setNotifStatus] = useState(null);
 
     const enableNotifications = async () => {
@@ -34,6 +35,43 @@ export default function Dashboard({ stats }) {
 
             <div className="px-4 py-8 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-6xl space-y-6">
+
+                    {/* Quick Action Welcome Banner */}
+                    <div className="flex flex-col gap-4 rounded-xl border border-emerald-800/20 bg-gradient-to-r from-emerald-900 via-teal-900 to-emerald-950 p-6 text-white shadow-sm sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h3 className="text-lg font-bold text-white tracking-tight">
+                                Welcome back, {auth.user.name}!
+                            </h3>
+                            <p className="mt-1 text-xs text-emerald-200">
+                                Municipal Agriculture Office System • Select a task to begin recording or reporting.
+                            </p>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2.5">
+                            <Link
+                                href={route('profiles.create')}
+                                className="flex items-center gap-2 rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-emerald-400 transition-colors"
+                            >
+                                <RiUserAddLine className="h-4 w-4" /> Register Beneficiary
+                            </Link>
+
+                            <Link
+                                href={route('aid-distributions.create')}
+                                className="flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white border border-white/20 hover:bg-white/20 transition-colors"
+                            >
+                                <RiFileAddLine className="h-4 w-4" /> Record Distribution
+                            </Link>
+
+                            {isAdmin && (
+                                <Link
+                                    href={route('aid-programs.create')}
+                                    className="flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white border border-white/20 hover:bg-white/20 transition-colors"
+                                >
+                                    <RiHandCoinLine className="h-4 w-4" /> Add Program
+                                </Link>
+                            )}
+                        </div>
+                    </div>
 
                     {/* KPI Cards */}
                     <div className="grid grid-cols-2 gap-4 md:grid-cols-4">

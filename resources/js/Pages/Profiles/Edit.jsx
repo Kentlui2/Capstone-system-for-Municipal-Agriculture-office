@@ -1,4 +1,4 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import Sidebar from '@/Layouts/Sidebar';
 import ProfileForm from './Partials/ProfileForm';
 import { Head, useForm } from '@inertiajs/react';
 
@@ -42,7 +42,7 @@ export default function Edit({ profile, commodities }) {
     };
 
     return (
-        <AuthenticatedLayout
+        <Sidebar
             header={<h2 className="text-xl font-semibold text-gray-800">Edit Profile</h2>}
         >
             <Head title="Edit Profile" />
@@ -70,6 +70,6 @@ export default function Edit({ profile, commodities }) {
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </Sidebar>
     );
 }

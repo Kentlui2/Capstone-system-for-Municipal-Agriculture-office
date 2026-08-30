@@ -39,17 +39,15 @@ class CommodityController extends Controller
             'filters' => request()->only(['category', 'status', 'sort', 'direction']),
         ]);
     }
-
+    
     /**
      * Store a new commodity — Admin only.
      */
-    public function store(StoreCommodityRequest $request): RedirectResponse
+    public function create(): Response
     {
-        Commodity::create($request->validated());
+        $this->authorize('create', Commodity::class);
 
-        return redirect()
-            ->route('commodities.index')
-            ->with('success', 'Commodity added successfully.');
+        return Inertia::render('Commodities/Create');
     }
 
     /**
@@ -89,5 +87,14 @@ class CommodityController extends Controller
         return redirect()
             ->route('commodities.index')
             ->with('success', 'Commodity removed successfully.');
+    }
+
+    public function edit(Commodity $commodity): Response
+    {
+    $this->authorize('update', $commodity);
+
+    return Inertia::render('Commodities/Edit', [
+        'commodity' => $commodity,
+    ]);
     }
 }

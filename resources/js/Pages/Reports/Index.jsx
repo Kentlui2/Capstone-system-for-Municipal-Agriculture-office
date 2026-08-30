@@ -1,103 +1,165 @@
 import Sidebar from '@/Layouts/Sidebar';
 import { Head } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import DataTable from '@/Components/DataTable';
+import Badge from '@/Components/Badge';
+import { BARANGAYS } from '@/constants/barangays';
+import { RiFilePdfLine, RiFileExcelLine, RiDownloadLine, RiSearchLine, RiFileTextLine } from '@remixicon/react';
 
+const sectorColor = { farmer: 'green', fisherfolk: 'blue', raiser: 'amber' };
 
 export default function Index({ profiles }) {
     const [sector, setSector] = useState('');
     const [barangay, setBarangay] = useState('');
+    const [searchProfile, setSearchProfile] = useState('');
+
+    const filteredProfiles = useMemo(() => {
+        if (!searchProfile.trim()) return profiles;
+        const q = searchProfile.toLowerCase();
+        return profiles.filter(
+            (p) =>
+                p.first_name.toLowerCase().includes(q) ||
+                p.last_name.toLowerCase().includes(q) ||
+                p.barangay.toLowerCase().includes(q)
+        );
+    }, [profiles, searchProfile]);
+
+    const columns = useMemo(() => [
+        {
+            accessorKey: 'name',
+            header: 'Name',
+            cell: (info) => (
+                <span className="font-medium text-gray-900">
+                    {info.row.original.first_name} {info.row.original.last_name}
+                </span>
+            ),
+        },
+        {
+            accessorKey: 'sector',
+            header: 'Sector',
+            cell: (info) => (
+                <Badge color={sectorColor[info.getValue()] || 'gray'}>
+                    <span className="capitalize">{info.getValue()}</span>
+                </Badge>
+            ),
+        },
+        {
+            accessorKey: 'barangay',
+            header: 'Barangay',
+            cell: (info) => info.getValue(),
+        },
+        {
+            id: 'actions',
+            header: 'Action',
+            enableSorting: false,
+            cell: (info) => (
+                <a
+                    href={route('reports.profile-sheet', info.row.original.id)}
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600 hover:text-emerald-800"
+                >
+                    <RiDownloadLine className="h-4 w-4" /> Download PDF
+                </a>
+            ),
+        },
+    ], []);
 
     return (
-        <Sidebar
-            header={<h2 className="text-xl font-semibold text-gray-800">Reports</h2>}
-        >
+        <Sidebar header={<h2 className="text-xl font-semibold text-gray-800">Reports</h2>}>
             <Head title="Reports" />
 
-            <div className="py-12">
-                <div className="mx-auto max-w-4xl sm:px-6 lg:px-8 space-y-6">
+            <div className="px-4 py-8 sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-6xl space-y-8">
 
-                    {/* Single Profile Sheet */}
-                    <div className="bg-white p-6 shadow-sm sm:rounded-lg">
-                        <h3 className="mb-4 text-lg font-medium text-gray-800">Profile Sheet (PDF)</h3>
-                        <p className="mb-4 text-sm text-gray-500">
-                            Download a printable profile sheet for a single beneficiary.
-                        </p>
-
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead>
-                                <tr className="text-left text-sm font-medium text-gray-500">
-                                    <th className="pb-2 pr-4">Name</th>
-                                    <th className="pb-2 pr-4">Sector</th>
-                                    <th className="pb-2 pr-4">Barangay</th>
-                                    <th className="pb-2">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-100 text-sm">
-                                {profiles.map((profile) => (
-                                    <tr key={profile.id}>
-                                        <td className="py-2 pr-4">{profile.first_name} {profile.last_name}</td>
-                                        <td className="py-2 pr-4 capitalize">{profile.sector}</td>
-                                        <td className="py-2 pr-4">{profile.barangay}</td>
-                                        <td className="py-2">
-                                            <a
-                                                href={route('reports.profile-sheet', profile.id)}
-                                                className="text-indigo-600 hover:underline"
-                                            >
-                                                Download PDF
-                                            </a>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                    {/* Bulk Export */}
-                    <div className="bg-white p-6 shadow-sm sm:rounded-lg">
-                        <h3 className="mb-4 text-lg font-medium text-gray-800">Bulk Beneficiary List</h3>
-                        <p className="mb-4 text-sm text-gray-500">
-                            Export the full beneficiary list (Name, Address, Sex, Birthdate), optionally filtered.
-                        </p>
-
-                        <div className="mb-4 flex gap-3">
-                            <select
-                                value={sector}
-                                onChange={(e) => setSector(e.target.value)}
-                                className="rounded border-gray-300 text-sm"
-                            >
-                                <option value="">All Sectors</option>
-                                <option value="farmer">Farmer</option>
-                                <option value="fisherfolk">Fisherfolk</option>
-                                <option value="raiser">Raiser</option>
-                            </select>
-
-                            <input
-                                type="text"
-                                placeholder="Filter by barangay..."
-                                value={barangay}
-                                onChange={(e) => setBarangay(e.target.value)}
-                                className="rounded border-gray-300 text-sm"
-                            />
+                    {/* Bulk Export Section */}
+                    <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+                        <div className="mb-6 flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
+                                <RiFileTextLine className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h3 className="text-base font-semibold text-gray-900">Bulk Beneficiary List Export</h3>
+                                <p className="text-xs text-gray-500">
+                                    Export full lists of registered beneficiaries with filtered details in PDF or Excel format.
+                                </p>
+                            </div>
                         </div>
 
-                        <div className="flex gap-3">
+                        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <div>
+                                <label className="block text-xs font-medium text-gray-500">Sector Filter</label>
+                                <select
+                                    value={sector}
+                                    onChange={(e) => setSector(e.target.value)}
+                                    className="mt-1 w-full rounded-lg border-gray-300 text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                >
+                                    <option value="">All Sectors</option>
+                                    <option value="farmer">Farmer</option>
+                                    <option value="fisherfolk">Fisherfolk</option>
+                                    <option value="raiser">Raiser</option>
+                                </select>
+                            </div>
 
+                            <div>
+                                <label className="block text-xs font-medium text-gray-500">Barangay Filter</label>
+                                <select
+                                    value={barangay}
+                                    onChange={(e) => setBarangay(e.target.value)}
+                                    className="mt-1 w-full rounded-lg border-gray-300 text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                >
+                                    <option value="">All Barangays</option>
+                                    {BARANGAYS.map((b) => (
+                                        <option key={b} value={b}>
+                                            {b}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-wrap gap-3">
                             <a
                                 href={route('reports.bulk-pdf', { sector, barangay })}
-                                className="rounded bg-indigo-600 px-4 py-2 text-sm text-white hover:bg-indigo-700"
+                                className="flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 transition-colors"
                             >
-                                Download PDF
+                                <RiFilePdfLine className="h-4 w-4" /> Download PDF Report
                             </a>
 
                             <a
                                 href={route('reports.bulk-excel', { sector, barangay })}
-                                className="rounded bg-green-600 px-4 py-2 text-sm text-white hover:bg-green-700"
+                                className="flex items-center gap-2 rounded-lg bg-gray-800 px-4 py-2 text-sm font-medium text-white hover:bg-gray-900 transition-colors"
                             >
-                                Download Excel
+                                <RiFileExcelLine className="h-4 w-4" /> Download Excel Report
                             </a>
                         </div>
                     </div>
+
+                    {/* Single Profile Sheet Section */}
+                    <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+                        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <h3 className="text-base font-semibold text-gray-900">Individual Profile Sheets</h3>
+                                <p className="text-xs text-gray-500">
+                                    Generate printable PDF summary sheets for individual beneficiaries.
+                                </p>
+                            </div>
+
+                            <div className="relative w-full sm:w-64">
+                                <RiSearchLine className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                                <input
+                                    type="text"
+                                    placeholder="Search beneficiary..."
+                                    value={searchProfile}
+                                    onChange={(e) => setSearchProfile(e.target.value)}
+                                    className="w-full rounded-lg border-gray-300 pl-9 text-sm focus:border-emerald-500 focus:ring-emerald-500"
+                                />
+                            </div>
+                        </div>
+
+                        <DataTable data={filteredProfiles} columns={columns} emptyMessage="No profiles found." />
+                    </div>
+
                 </div>
             </div>
-        </Sidebar >
+        </Sidebar>
     );
 }

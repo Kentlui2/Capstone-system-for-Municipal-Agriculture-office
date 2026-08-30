@@ -5,9 +5,13 @@ import DataTable from '@/Components/DataTable';
 import Badge from '@/Components/Badge';
 import { RiAddLine, RiEyeLine } from '@remixicon/react';
 
+import ActiveFilters from '@/Components/ActiveFilters';
+
 export default function Index({ distributions, programs, filters }) {
     const [programId, setProgramId] = useState(filters.program_id || '');
     const [flagged, setFlagged] = useState(filters.flagged || '');
+
+    const selectedProgramName = programs.find((p) => String(p.id) === String(programId))?.name;
 
     const applyFilters = () => {
         router.get(route('aid-distributions.index'), { program_id: programId, flagged }, { preserveState: true });
@@ -88,7 +92,7 @@ export default function Index({ distributions, programs, filters }) {
                 <div className="mx-auto max-w-6xl">
                     <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
 
-                        <div className="mb-6 flex flex-wrap items-end gap-3">
+                        <div className="mb-4 flex flex-wrap items-end gap-3">
                             <div>
                                 <label className="block text-xs text-gray-500">Program</label>
                                 <select value={programId} onChange={(e) => setProgramId(e.target.value)} className="mt-1 rounded-lg border-gray-300 text-sm">
@@ -108,10 +112,20 @@ export default function Index({ distributions, programs, filters }) {
                             <button onClick={resetFilters} className="rounded-lg bg-gray-100 px-4 py-2 text-sm text-gray-700 hover:bg-gray-200">Reset</button>
                         </div>
 
+                        <ActiveFilters
+                            filters={[
+                                { label: 'Program', value: programId, displayValue: selectedProgramName, onRemove: () => { setProgramId(''); router.get(route('aid-distributions.index'), { flagged }); } },
+                                { label: 'Flagged', value: flagged, displayValue: flagged === 'duplicate' ? 'Duplicates Only' : 'Over-Allocated Only', onRemove: () => { setFlagged(''); router.get(route('aid-distributions.index'), { program_id: programId }); } },
+                            ]}
+                            onClearAll={resetFilters}
+                        />
+
                         <DataTable
                             data={distributions.data}
                             columns={columns}
                             emptyMessage="No distributions recorded yet."
+                            emptyActionLink={route('aid-distributions.create')}
+                            emptyActionLabel="Record Distribution"
                             pagination={{
                                 links: distributions.links,
                                 from: distributions.from,

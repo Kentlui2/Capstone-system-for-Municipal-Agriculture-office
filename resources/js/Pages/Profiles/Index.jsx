@@ -7,6 +7,8 @@ import SearchableSelect from '@/Components/SearchableSelect';
 import { BARANGAYS } from '@/constants/barangays';
 import { RiAddLine, RiEyeLine, RiEditLine, RiDeleteBinLine } from '@remixicon/react';
 
+import ActiveFilters from '@/Components/ActiveFilters';
+
 const sectorColor = { farmer: 'green', fisherfolk: 'blue', raiser: 'amber' };
 
 export default function Index({ profiles, filters }) {
@@ -22,6 +24,13 @@ export default function Index({ profiles, filters }) {
             search, sector,
             barangay: barangay === 'All Barangays' ? '' : barangay,
         }, { preserveState: true });
+    };
+
+    const resetFilters = () => {
+        setSearch('');
+        setSector('');
+        setBarangay('All Barangays');
+        router.get(route('profiles.index'));
     };
 
     const deleteProfile = (profile) => {
@@ -89,7 +98,7 @@ export default function Index({ profiles, filters }) {
                 <div className="mx-auto max-w-6xl">
                     <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
 
-                        <form onSubmit={applyFilters} className="mb-6 flex flex-wrap gap-3">
+                        <form onSubmit={applyFilters} className="mb-4 flex flex-wrap gap-3">
                             <input
                                 type="text"
                                 placeholder="Search by name..."
@@ -112,12 +121,24 @@ export default function Index({ profiles, filters }) {
                                 />
                             </div>
                             <button type="submit" className="rounded-lg bg-gray-800 px-4 py-2 text-sm text-white hover:bg-gray-900">Filter</button>
+                            <button type="button" onClick={resetFilters} className="rounded-lg bg-gray-100 px-4 py-2 text-sm text-gray-700 hover:bg-gray-200">Reset</button>
                         </form>
+
+                        <ActiveFilters
+                            filters={[
+                                { label: 'Search', value: search, onRemove: () => { setSearch(''); router.get(route('profiles.index'), { sector, barangay: barangay === 'All Barangays' ? '' : barangay }); } },
+                                { label: 'Sector', value: sector, displayValue: sector, onRemove: () => { setSector(''); router.get(route('profiles.index'), { search, barangay: barangay === 'All Barangays' ? '' : barangay }); } },
+                                { label: 'Barangay', value: barangay, onRemove: () => { setBarangay('All Barangays'); router.get(route('profiles.index'), { search, sector }); } },
+                            ]}
+                            onClearAll={resetFilters}
+                        />
 
                         <DataTable
                             data={profiles.data}
                             columns={columns}
-                            emptyMessage="No profiles found."
+                            emptyMessage="No beneficiary profiles found."
+                            emptyActionLink={route('profiles.create')}
+                            emptyActionLabel="Add Profile"
                             pagination={{
                                 links: profiles.links,
                                 from: profiles.from,

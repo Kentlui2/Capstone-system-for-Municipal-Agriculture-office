@@ -35,10 +35,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('profiles', BeneficiaryProfileController::class);
     
     Route::resource('commodities', CommodityController::class)
-        ->except(['create', 'show', 'edit']); // inline add/edit on the index page, no separate pages
+        ->except(['show']); 
     
-    Route::resource('aid-programs', AidProgramController::class)
-        ->except(['create', 'edit']);
+    Route::resource('aid-programs', AidProgramController::class);
     
     Route::resource('aid-distributions', AidDistributionController::class)
         ->only(['index', 'create', 'store', 'show']); // permanent records — no edit/update/destroy
