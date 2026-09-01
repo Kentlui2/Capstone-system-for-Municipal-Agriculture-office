@@ -12,19 +12,39 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('aid_distributions', function (Blueprint $table) {
-
-            $table->foreignId('profile_id')->after('id')->constrained('profiles');
-            $table->foreignId('program_id')->after('profile_id')->constrained('aid_programs');
-            $table->string('aid_type')->after('program_id');
-            $table->string('description')->nullable()->after('aid_type');
-            $table->decimal('quantity', 10, 2)->after('description');
-            $table->string('unit')->after('quantity');
-            $table->date('distribution_date')->after('unit');
-            $table->text('remarks')->nullable()->after('distribution_date');
-            $table->foreignId('encoded_by')->after('remarks')->constrained('users');
-            $table->boolean('is_flagged')->default(false)->after('encoded_by');
-            $table->boolean('exceeds_allocation')->default(false)->after('is_flagged');
-
+            if (!Schema::hasColumn('aid_distributions', 'profile_id')) {
+                $table->foreignId('profile_id')->after('id')->constrained('profiles');
+            }
+            if (!Schema::hasColumn('aid_distributions', 'program_id')) {
+                $table->foreignId('program_id')->after('profile_id')->constrained('aid_programs');
+            }
+            if (!Schema::hasColumn('aid_distributions', 'aid_type')) {
+                $table->string('aid_type')->after('program_id');
+            }
+            if (!Schema::hasColumn('aid_distributions', 'description')) {
+                $table->string('description')->nullable()->after('aid_type');
+            }
+            if (!Schema::hasColumn('aid_distributions', 'quantity')) {
+                $table->decimal('quantity', 10, 2)->after('description');
+            }
+            if (!Schema::hasColumn('aid_distributions', 'unit')) {
+                $table->string('unit')->after('quantity');
+            }
+            if (!Schema::hasColumn('aid_distributions', 'distribution_date')) {
+                $table->date('distribution_date')->after('unit');
+            }
+            if (!Schema::hasColumn('aid_distributions', 'remarks')) {
+                $table->text('remarks')->nullable()->after('distribution_date');
+            }
+            if (!Schema::hasColumn('aid_distributions', 'encoded_by')) {
+                $table->foreignId('encoded_by')->after('remarks')->constrained('users');
+            }
+            if (!Schema::hasColumn('aid_distributions', 'is_flagged')) {
+                $table->boolean('is_flagged')->default(false)->after('encoded_by');
+            }
+            if (!Schema::hasColumn('aid_distributions', 'exceeds_allocation')) {
+                $table->boolean('exceeds_allocation')->default(false)->after('is_flagged');
+            }
         });
     }
 

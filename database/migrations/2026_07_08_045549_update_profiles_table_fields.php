@@ -12,10 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('profiles', function (Blueprint $table) {
-            
-            $table->string('street_address')->nullable()->after('barangay');
-            $table->dropColumn(['rsbsa_number', 'org_membership']);
-            
+            if (!Schema::hasColumn('profiles', 'street_address')) {
+                $table->string('street_address')->nullable()->after('barangay');
+            }
+            $toDrop = array_filter(['rsbsa_number', 'org_membership'], function ($col) {
+                return Schema::hasColumn('profiles', $col);
+            });
+            if (!empty($toDrop)) {
+                $table->dropColumn(array_values($toDrop));
+            }
         });
     }
 

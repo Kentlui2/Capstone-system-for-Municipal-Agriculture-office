@@ -37,13 +37,24 @@ class ReportController extends Controller
         return $pdf->download("profile-{$profile->last_name}-{$profile->id}.pdf");
     }
 
-    public function bulkPdf(Request $request): Response
+    public function bulkPdf(Request $request)
     {
-        $profiles = Profile::query()
+        $query = Profile::query()
             ->when($request->sector, fn ($q) => $q->where('sector', $request->sector))
-            ->when($request->barangay, fn ($q) => $q->where('barangay', $request->barangay))
-            ->orderBy('last_name')
-            ->get();
+            ->when($request->barangay, fn ($q) => $q->where('barangay', $request->barangay));
+
+        if ($query->count() > 200) {
+            \App\Jobs\GenerateBulkReport::dispatch(
+                $request->sector,
+                $request->barangay,
+                'pdf',
+                $request->user()->id
+            );
+
+            return back()->with('info', 'Report export has been queued due to large dataset size. You will be notified when ready.');
+        }
+
+        $profiles = $query->orderBy('last_name')->get();
 
         $pdf = Pdf::loadView('reports.bulk-list', [
             'profiles' => $profiles,
@@ -56,6 +67,21 @@ class ReportController extends Controller
 
     public function bulkExcel(Request $request)
     {
+        $query = Profile::query()
+            ->when($request->sector, fn ($q) => $q->where('sector', $request->sector))
+            ->when($request->barangay, fn ($q) => $q->where('barangay', $request->barangay));
+
+        if ($query->count() > 200) {
+            \App\Jobs\GenerateBulkReport::dispatch(
+                $request->sector,
+                $request->barangay,
+                'xlsx',
+                $request->user()->id
+            );
+
+            return back()->with('info', 'Report export has been queued due to large dataset size. You will be notified when ready.');
+        }
+
         return Excel::download(
             new ProfilesExport($request->sector, $request->barangay),
             'beneficiary-list.xlsx'

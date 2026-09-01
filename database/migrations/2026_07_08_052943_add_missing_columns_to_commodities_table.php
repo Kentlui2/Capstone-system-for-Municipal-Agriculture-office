@@ -12,11 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('commodities', function (Blueprint $table) {
-            
-            $table->string('name')->after('id');
-            $table->string('category')->after('name');
-            $table->enum('status', ['active', 'inactive'])->default('active')->after('category');
-            
+            if (!Schema::hasColumn('commodities', 'name')) {
+                $table->string('name')->after('id');
+            }
+            if (!Schema::hasColumn('commodities', 'category')) {
+                $table->string('category')->after('name');
+            }
+            if (!Schema::hasColumn('commodities', 'status')) {
+                $table->enum('status', ['active', 'inactive'])->default('active')->after('category');
+            }
         });
     }
 

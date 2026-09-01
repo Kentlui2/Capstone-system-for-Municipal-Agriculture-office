@@ -12,9 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('sector_profiles', function (Blueprint $table) {
-            $table->foreignId('profile_id')->after('id')->constrained('profiles')->cascadeOnDelete();
-            $table->string('field_name')->after('profile_id');
-            $table->string('field_value')->after('field_name');
+            if (!Schema::hasColumn('sector_profiles', 'profile_id')) {
+                $table->foreignId('profile_id')->after('id')->constrained('profiles')->cascadeOnDelete();
+            }
+            if (!Schema::hasColumn('sector_profiles', 'field_name')) {
+                $table->string('field_name')->after('profile_id');
+            }
+            if (!Schema::hasColumn('sector_profiles', 'field_value')) {
+                $table->string('field_value')->after('field_name');
+            }
         });
     }
 

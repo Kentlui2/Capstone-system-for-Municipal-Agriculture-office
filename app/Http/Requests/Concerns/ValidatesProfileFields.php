@@ -20,7 +20,7 @@ trait ValidatesProfileFields
             'street_address' => ['nullable', 'string', 'max:255'],
             'contact_number' => ['nullable', 'string', 'max:20'],
             'sector' => ['required', Rule::in(['farmer', 'fisherfolk', 'raiser'])],
-            'photo' => ['nullable', 'image', 'max:2048'],
+            'photo' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:2048', 'dimensions:min_width=100,min_height=100'],
 
             'sector_fields' => ['nullable', 'array'],
             'sector_fields.*' => ['nullable', 'string', 'max:255'],

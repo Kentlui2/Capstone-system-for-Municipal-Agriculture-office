@@ -32,7 +32,8 @@ class CommodityController extends Controller
             ->when(request('status'), fn ($q, $status) => $q->where('status', $status))
             ->orderBy($sort, $direction)
             ->orderBy('name') // secondary sort for stable ordering
-            ->get();
+            ->paginate(20)
+            ->withQueryString();
 
         return Inertia::render('Commodities/Index', [
             'commodities' => $commodities,
@@ -41,13 +42,27 @@ class CommodityController extends Controller
     }
     
     /**
-     * Store a new commodity — Admin only.
+     * Display commodity create form — Admin only.
      */
     public function create(): Response
     {
         $this->authorize('create', Commodity::class);
 
         return Inertia::render('Commodities/Create');
+    }
+
+    /**
+     * Store a new commodity — Admin only.
+     */
+    public function store(StoreCommodityRequest $request): RedirectResponse
+    {
+        $this->authorize('create', Commodity::class);
+
+        Commodity::create($request->validated());
+
+        return redirect()
+            ->route('commodities.index')
+            ->with('success', 'Commodity created successfully.');
     }
 
     /**

@@ -94,20 +94,22 @@ public function index(): Response
             ]);
         }
 
-       AidDistribution::create([
-        'profile_id' => $validated['profile_id'],
-        'program_id' => $validated['program_id'],
-        'commodity_id' => $validated['commodity_id'] ?? null,
-        'aid_type' => $validated['aid_type'],
-        'description' => $validated['description'] ?? null,
-        'quantity' => $validated['quantity'],
-        'unit' => $validated['unit'],
-        'distribution_date' => $validated['distribution_date'],
-        'remarks' => $validated['remarks'] ?? null,
-        'encoded_by' => $request->user()->id,
-        'is_flagged' => $warnings['is_duplicate'],
-        'exceeds_allocation' => $warnings['exceeds_allocation'],
-    ]);
+        AidDistribution::create([
+            'profile_id' => $validated['profile_id'],
+            'program_id' => $validated['program_id'],
+            'commodity_id' => $validated['commodity_id'] ?? null,
+            'aid_type' => $validated['aid_type'],
+            'description' => $validated['description'] ?? null,
+            'quantity' => $validated['quantity'],
+            'unit' => $validated['unit'],
+            'distribution_date' => $validated['distribution_date'],
+            'remarks' => $validated['remarks'] ?? null,
+            'encoded_by' => $request->user()->id,
+            'is_flagged' => $warnings['is_duplicate'],
+            'exceeds_allocation' => $warnings['exceeds_allocation'],
+        ]);
+
+        \Illuminate\Support\Facades\Cache::forget('dashboard:stats');
 
         return redirect()
             ->route('aid-distributions.index')

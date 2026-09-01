@@ -117,11 +117,18 @@ export default function Index({ commodities, filters }) {
                         />
 
                         <DataTable
-                            data={commodities}
+                            data={commodities.data || commodities}
                             columns={columns}
                             emptyMessage="No commodities registered yet."
                             emptyActionLink={isAdmin ? route('commodities.create') : undefined}
                             emptyActionLabel="Add Commodity"
+                            pagination={commodities.links ? {
+                                links: commodities.links,
+                                from: commodities.from,
+                                to: commodities.to,
+                                total: commodities.total,
+                                onNavigate: (url) => router.get(url, {}, { preserveState: true }),
+                            } : undefined}
                         />
                     </div>
                 </div>

@@ -121,11 +121,18 @@ export default function Index({ programs, filters }) {
                         />
 
                         <DataTable
-                            data={programs}
+                            data={programs.data || programs}
                             columns={columns}
                             emptyMessage="No aid programs registered yet."
                             emptyActionLink={isAdmin ? route('aid-programs.create') : undefined}
                             emptyActionLabel="Add Program"
+                            pagination={programs.links ? {
+                                links: programs.links,
+                                from: programs.from,
+                                to: programs.to,
+                                total: programs.total,
+                                onNavigate: (url) => router.get(url, {}, { preserveState: true }),
+                            } : undefined}
                         />
                     </div>
                 </div>

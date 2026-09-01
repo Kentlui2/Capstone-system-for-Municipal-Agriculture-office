@@ -15,26 +15,30 @@ class DashboardController extends Controller
 
     public function index(): Response
     {
-        $analytics = new AnalyticsService();
+        $stats = \Illuminate\Support\Facades\Cache::remember('dashboard:stats', 300, function () {
+            $analytics = new AnalyticsService();
 
-        return Inertia::render('Dashboard', [
-            'stats' => [
+            return [
                 'total_profiles' => Profile::count(),
-            'profiles_by_sector' => [
-                'farmer' => Profile::where('sector', 'farmer')->count(),
-                'fisherfolk' => Profile::where('sector', 'fisherfolk')->count(),
-                'raiser' => Profile::where('sector', 'raiser')->count(),
-            ],
-            'active_programs' => AidProgram::where('status', 'active')->count(),
-            'total_distributions' => AidDistribution::count(),
-            'duplicate_flag_count' => $analytics->duplicateFlagCount(),
-            'unserved_profiles_count' => $analytics->unservedProfilesCount(),
-               'farmers_per_commodity' => Commodity::withCount('profiles')
+                'profiles_by_sector' => [
+                    'farmer' => Profile::where('sector', 'farmer')->count(),
+                    'fisherfolk' => Profile::where('sector', 'fisherfolk')->count(),
+                    'raiser' => Profile::where('sector', 'raiser')->count(),
+                ],
+                'active_programs' => AidProgram::where('status', 'active')->count(),
+                'total_distributions' => AidDistribution::count(),
+                'duplicate_flag_count' => $analytics->duplicateFlagCount(),
+                'unserved_profiles_count' => $analytics->unservedProfilesCount(),
+                'farmers_per_commodity' => Commodity::withCount('profiles')
                      ->orderByDesc('profiles_count')
                      ->get(['id', 'name', 'category'])
                      ->filter(fn ($commodity) => $commodity->profiles_count > 0)
                      ->values(),
-            ],
+            ];
+        });
+
+        return Inertia::render('Dashboard', [
+            'stats' => $stats,
         ]);
     }
 }

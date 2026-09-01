@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        
-        DB::statement("ALTER TABLE aid_programs ADD CONSTRAINT aid_type_check CHECK (aid_type IN ('Seeds', 'Fertilizer', 'Equipment', 'Cash Incentive', 'Livelihood'))");
-
+        if (\Illuminate\Support\Facades\DB::getDriverName() !== 'sqlite') {
+            \Illuminate\Support\Facades\DB::statement("ALTER TABLE aid_programs ADD CONSTRAINT aid_type_check CHECK (aid_type IN ('Seeds', 'Fertilizer', 'Equipment', 'Cash Incentive', 'Livelihood'))");
+        }
     }
 
     /**
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-      
-        DB::statement("ALTER TABLE aid_programs DROP CONSTRAINT aid_type_check");
-
+        if (\Illuminate\Support\Facades\DB::getDriverName() !== 'sqlite') {
+            \Illuminate\Support\Facades\DB::statement("ALTER TABLE aid_programs DROP CONSTRAINT aid_type_check");
+        }
     }
 };

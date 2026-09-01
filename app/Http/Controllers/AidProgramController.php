@@ -24,7 +24,8 @@ class AidProgramController extends Controller
         ->when(request('status'), fn ($q, $status) => $q->where('status', $status))
         ->orderBy('status')
         ->orderBy('name')
-        ->get();
+        ->paginate(20)
+        ->withQueryString();
 
         return Inertia::render('AidPrograms/Index', [
         'programs' => $programs,
