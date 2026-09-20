@@ -18,6 +18,10 @@ export async function syncDownReferenceData() {
             headers: { Accept: 'application/json' },
         });
 
+        if (response.status === 401 || response.status === 419) {
+            return; // Session expired while idle; suppress error and wait for login redirect
+        }
+
         if (!response.ok) {
             throw new Error('Failed to fetch reference data');
         }

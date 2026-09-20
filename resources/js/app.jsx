@@ -1,7 +1,7 @@
 import '../css/app.css';
 import './bootstrap';
 
-import { createInertiaApp } from '@inertiajs/react';
+import { createInertiaApp, router } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import { syncDownReferenceData } from './offline/syncDown';
@@ -16,6 +16,14 @@ if (import.meta.env.PROD) {
     });
 }
 
+// Redirect cleanly to login page if session expires while idle (419 / 401), preventing white screen
+router.on('invalid', (event) => {
+    const status = event.detail.response?.status;
+    if (status === 419 || status === 401) {
+        event.preventDefault();
+        window.location.href = '/login';
+    }
+});
 
 // Cache reference data locally for offline use, whenever the app loads
 // while online. Runs silently in the background — no UI blocking.

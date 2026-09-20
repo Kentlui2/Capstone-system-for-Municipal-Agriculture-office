@@ -15,7 +15,7 @@ class DashboardController extends Controller
 
     public function index(): Response
     {
-        $stats = \Illuminate\Support\Facades\Cache::remember('dashboard:stats', 300, function () {
+        $stats = \Illuminate\Support\Facades\Cache::remember('dashboard:stats:v2', 300, function () {
             $analytics = new AnalyticsService();
 
             return [
@@ -33,7 +33,8 @@ class DashboardController extends Controller
                      ->orderByDesc('profiles_count')
                      ->get(['id', 'name', 'category'])
                      ->filter(fn ($commodity) => $commodity->profiles_count > 0)
-                     ->values(),
+                     ->values()
+                     ->toArray(),
             ];
         });
 

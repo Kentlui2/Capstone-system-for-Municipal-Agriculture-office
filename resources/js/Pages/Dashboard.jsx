@@ -25,7 +25,13 @@ export default function Dashboard({ stats }) {
         { name: 'Raisers', value: stats.profiles_by_sector.raiser },
     ].filter((s) => s.value > 0);
 
-    const commodityData = stats.farmers_per_commodity
+    const rawCommodityData = Array.isArray(stats?.farmers_per_commodity)
+        ? stats.farmers_per_commodity
+        : (stats?.farmers_per_commodity && typeof stats.farmers_per_commodity === 'object')
+            ? Object.values(stats.farmers_per_commodity)
+            : [];
+
+    const commodityData = rawCommodityData
         .slice(0, 8)
         .map((c) => ({ name: c.name, Beneficiaries: c.profiles_count }));
 
