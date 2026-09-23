@@ -1,84 +1,74 @@
-# Automated Database Backups & Recovery Guide
+# Database Backup & Restore Guide
 
-This document covers backup strategy, configuration, and restoration procedures for the MAO Beneficiary Profiling & Aid Distribution System.
-
----
-
-## 1. Overview & Retention Strategy
-
-- **Backup Schedule:** Daily at `02:00` system time via Laravel scheduler (`routes/console.php`).
-- **Backup Target:** Database dumps (MySQL / PostgreSQL) + uploaded beneficiary photos (`storage/app/public/photos`).
-- **Retention Policy:**
-  - Daily backups kept for 14 days
-  - Weekly backups kept for 8 weeks
-  - Monthly backups kept for 12 months
+Production database: **Render PostgreSQL** (Free tier)
 
 ---
 
-## 2. Package Configuration (`spatie/laravel-backup`)
+## Render Auto-Backups (Free Tier Limitation)
 
-To configure `spatie/laravel-backup` with S3 or local storage:
+> ⚠️ The Render free tier does **not** include automatic daily backups.
+> You must perform manual backups regularly (recommended: weekly at minimum).
+
+---
+
+## Manual Backup (pg_dump via External URL)
+
+### Prerequisites
+- Install [pgAdmin 4](https://www.pgadmin.org/) or `psql` / `pg_dump` locally.
+- Get your **External Database URL** from Render:
+  - Render Dashboard → PostgreSQL database → **Connect** tab → **External Database URL**
+  - It looks like: `postgres://user:password@dpg-xxxx.render.com:5432/dbname`
+
+### Create a Backup
+
+Using `pg_dump` from the command line (replace with your actual External URL):
 
 ```bash
-composer require spatie/laravel-backup
-php artisan vendor:publish --provider="Spatie\Backup\BackupServiceProvider"
+pg_dump "postgres://user:password@dpg-xxxx.render.com:5432/dbname" \
+  --no-acl --no-owner \
+  -f backup_$(date +%Y-%m-%d).sql
 ```
 
-In `.env`:
-```ini
-BACKUP_DISK=s3
-AWS_ACCESS_KEY_ID=your_access_key
-AWS_SECRET_ACCESS_KEY=your_secret_key
-AWS_DEFAULT_REGION=ap-southeast-1
-AWS_BUCKET=mao-capstone-backups
+This creates a timestamped `.sql` file (e.g. `backup_2026-09-23.sql`) in your current directory.
+
+### Restore from Backup
+
+```bash
+psql "postgres://user:password@dpg-xxxx.render.com:5432/dbname" \
+  -f backup_2026-09-23.sql
 ```
 
-In `routes/console.php`:
-```php
-use Illuminate\Support\Facades\Schedule;
-
-Schedule::command('backup:run')->daily()->at('02:00');
-Schedule::command('backup:clean')->daily()->at('03:00');
-```
+> ⚠️ Restoring will **overwrite** existing data. Only do this to recover from a critical failure.
 
 ---
 
-## 3. Manual Backup Command
+## Recommended Backup Schedule
 
-To run an immediate manual backup (e.g. before major system updates):
-
-```bash
-php artisan backup:run
-```
-
-To backup database only:
-```bash
-php artisan backup:run --only-db
-```
+| Frequency | Method |
+|-----------|--------|
+| Weekly | Manual `pg_dump` → save to Google Drive or external storage |
+| Before every major deployment | Manual `pg_dump` snapshot |
+| Monthly | Download and archive locally |
 
 ---
 
-## 4. Disaster Recovery & Restoration Checklist
+## Backing Up Uploaded Files (Storage)
 
-1. **Database Restore:**
-   ```bash
-   # MySQL
-   mysql -u username -p database_name < backup_dump.sql
+> ℹ️ Render's free tier uses **ephemeral storage** — files uploaded to `storage/app/public` are lost on each redeploy.
+>
+> If your app stores profile photos or uploaded documents, configure an S3-compatible object storage (e.g., **Cloudflare R2** — free tier) and set:
+>
+> ```
+> FILESYSTEM_DISK=s3
+> AWS_ACCESS_KEY_ID=...
+> AWS_SECRET_ACCESS_KEY=...
+> AWS_DEFAULT_REGION=auto
+> AWS_BUCKET=your-bucket-name
+> AWS_ENDPOINT=https://your-r2-endpoint
+> ```
 
-   # PostgreSQL
-   pg_restore -U username -d database_name backup_dump.psql
-   ```
+---
 
-2. **Storage Restore:**
-   Extract and place photos directory in `storage/app/public/photos`.
+## Contacts
 
-3. **Re-link Storage:**
-   ```bash
-   php artisan storage:link
-   ```
-
-4. **Verify Application Status:**
-   ```bash
-   php artisan migrate:status
-   php artisan test
-   ```
+For questions about the database or backups, contact the system administrator at the Municipal Agriculture Office of Sta. Cruz, Davao del Sur.

@@ -19,8 +19,41 @@ A comprehensive web application designed for the Municipal Agriculture Office (M
 
 - **Backend:** Laravel 11 / PHP 8.3
 - **Frontend:** React + Inertia.js + Tailwind CSS
-- **Database:** MySQL / PostgreSQL (SQLite supported for local testing)
+- **Database:** PostgreSQL (Render managed)
 - **Asset Bundling:** Vite + PWA Plugin
+- **Hosting:** Render (Docker-based deployment via Nginx + PHP-FPM + Supervisord)
+
+---
+
+## 🚀 Production
+
+| | |
+|---|---|
+| **Live URL** | https://ka-agri.onrender.com |
+| **Platform** | Render (Free tier) |
+| **Database** | Render PostgreSQL |
+| **PWA** | Installable on Android (Chrome) and iOS (Add to Home Screen) |
+
+### Environment Variables Required on Render
+
+| Key | Description |
+|-----|-------------|
+| `APP_KEY` | Laravel app key (`base64:...`) |
+| `APP_ENV` | `production` |
+| `APP_URL` | `https://ka-agri.onrender.com` |
+| `DB_URL` | Internal PostgreSQL URL from Render |
+| `DB_CONNECTION` | `pgsql` |
+| `SESSION_DRIVER` | `database` |
+| `VITE_VAPID_PUBLIC_KEY` | VAPID public key for push notifications |
+| `VAPID_PUBLIC_KEY` | VAPID public key |
+| `VAPID_PRIVATE_KEY` | VAPID private key |
+| `ADMIN_NAME` | Initial admin display name |
+| `ADMIN_EMAIL` | Initial admin login email |
+| `ADMIN_PASSWORD` | Initial admin password |
+
+### Backups
+
+See [docs/BACKUPS.md](docs/BACKUPS.md) for the manual backup and restore guide.
 
 ---
 
