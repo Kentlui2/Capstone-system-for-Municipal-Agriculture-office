@@ -23,6 +23,10 @@ class AppServiceProvider extends ServiceProvider
     {
         Vite::prefetch(concurrency: 3);
 
+        if ($this->app->environment('production') || config('app.env') === 'production') {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
+
         Password::defaults(function () {
             $rule = Password::min(10)
                 ->mixedCase()
