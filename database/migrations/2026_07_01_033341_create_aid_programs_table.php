@@ -20,9 +20,9 @@ return new class extends Migration
 
             // Panel feedback addition: tracks total quantity allocated
             // to this program so utilization/over-allocation can be computed
-            $table->decimal('allocated_quantity', 10, 2);
+            $table->decimal('allocated_quantity', 10, 2)->nullable();
             $table->string('unit');
-            $table->decimal('value',10,2);
+            $table->decimal('value',10,2)->nullable();
 
             $table->string('funding_source')->nullable();
             $table->date('start_date');
