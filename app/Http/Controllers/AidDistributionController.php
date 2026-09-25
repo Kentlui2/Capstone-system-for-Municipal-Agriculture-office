@@ -33,13 +33,13 @@ public function index(): Response
             $sort = 'distribution_date';
         }
 
-        $distributions = AidDistribution::with(['profile', 'program', 'encoder'])
-            ->when(request('program_id'), fn ($q, $programId) => $q->where('program_id', $programId))
-            ->when(request('flagged') === 'duplicate', fn ($q) => $q->where('is_flagged', true))
-            ->when(request('flagged') === 'over_allocation', fn ($q) => $q->where('exceeds_allocation', true))
-            ->orderBy($sort, $direction)
-            ->paginate(20)
-            ->withQueryString();
+        $distributions = AidDistribution::with(['profile' => fn ($q) => $q->withTrashed(), 'program', 'encoder'])
+        ->when(request('program_id'), fn ($q, $programId) => $q->where('program_id', $programId))
+        ->when(request('flagged') === 'duplicate', fn ($q) => $q->where('is_flagged', true))
+        ->when(request('flagged') === 'over_allocation', fn ($q) => $q->where('exceeds_allocation', true))
+        ->orderBy($sort, $direction)
+        ->paginate(20)
+        ->withQueryString();
 
         return Inertia::render('AidDistributions/Index', [
             'distributions' => $distributions,
@@ -123,8 +123,7 @@ public function index(): Response
     {
         $this->authorize('view', $aidDistribution);
 
-        $aidDistribution->load(['profile', 'program', 'encoder']);
-
+        $aidDistribution->load(['profile' => fn ($q) => $q->withTrashed(), 'program', 'encoder']);
         return Inertia::render('AidDistributions/Show', [
             'distribution' => $aidDistribution,
         ]);

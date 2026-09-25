@@ -28,7 +28,9 @@ export default function Index({ distributions, programs, filters }) {
             id: 'beneficiary',
             header: 'Beneficiary',
             enableSorting: false,
-            cell: (info) => `${info.row.original.profile.first_name} ${info.row.original.profile.last_name}`,
+            cell: (info) => info.row.original.profile
+                ? `${info.row.original.profile.first_name} ${info.row.original.profile.last_name}`
+                : 'No profile linked',
         },
         {
             id: 'program',

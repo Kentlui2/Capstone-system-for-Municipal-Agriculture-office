@@ -35,7 +35,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('aid-programs', AidProgramController::class);
     
     Route::resource('aid-distributions', AidDistributionController::class)
-        ->only(['index', 'create', 'store', 'show']); // permanent records — no edit/update/destroy
+    ->only(['index', 'create', 'store', 'show']);
 
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/profile/{profile}', [ReportController::class, 'profileSheet'])->name('reports.profile-sheet');
