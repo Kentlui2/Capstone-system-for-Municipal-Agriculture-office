@@ -33,8 +33,6 @@ return new class extends Migration
           // Audit trail: who encoded this profile
           $table->foreignId('created_by')->constrained('users');
 
-          // Automatically track when created_by was set
-          $table->softDeletes();
           $table->timestamps();
         });
     }

@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreAidProgramRequest;
 use App\Http\Requests\UpdateAidProgramRequest;
 use App\Models\AidProgram;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
 use Inertia\Inertia;
-use Inertia\Response;
+use Inertia\Response as InertiaResponse;
 
 class AidProgramController extends Controller
 {
@@ -101,7 +103,7 @@ class AidProgramController extends Controller
             ->with('success', 'Aid program removed successfully.');
     }
 
-    public function show(AidProgram $aidProgram): Response
+    public function show(AidProgram $aidProgram): InertiaResponse
     {
         $this->authorize('view', $aidProgram);
 
@@ -119,5 +121,31 @@ class AidProgramController extends Controller
             'program' => $aidProgram,
             'profiles' => $profiles,
         ]);
+    }
+
+    /**
+     * Download a PDF of all unique beneficiaries for this program.
+     */
+    public function beneficiariesPdf(AidProgram $aidProgram): Response
+    {
+        $this->authorize('view', $aidProgram);
+
+        $aidProgram->load(['distributions.profile']);
+
+        $profiles = $aidProgram->distributions
+            ->pluck('profile')
+            ->filter()
+            ->unique('id')
+            ->sortBy('last_name')
+            ->values();
+
+        $pdf = Pdf::loadView('reports.program-beneficiaries', [
+            'program'  => $aidProgram,
+            'profiles' => $profiles,
+        ]);
+
+        $safeName = preg_replace('/[^a-z0-9]+/i', '-', $aidProgram->name);
+
+        return $pdf->download("beneficiaries-{$safeName}.pdf");
     }
 }

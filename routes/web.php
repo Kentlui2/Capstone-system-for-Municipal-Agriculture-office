@@ -39,8 +39,11 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/profile/{profile}', [ReportController::class, 'profileSheet'])->name('reports.profile-sheet');
+    Route::get('/reports/profile/{profile}/preview', [ReportController::class, 'profileSheetPreview'])->name('reports.profile-sheet-preview');
     Route::get('/reports/bulk/pdf', [ReportController::class, 'bulkPdf'])->name('reports.bulk-pdf');
+    Route::get('/reports/bulk/pdf/preview', [ReportController::class, 'bulkPdfPreview'])->name('reports.bulk-pdf-preview');
     Route::get('/reports/bulk/excel', [ReportController::class, 'bulkExcel'])->name('reports.bulk-excel');
+    Route::get('/aid-programs/{aidProgram}/beneficiaries/pdf', [AidProgramController::class, 'beneficiariesPdf'])->name('aid-programs.beneficiaries-pdf');
 
     Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
 

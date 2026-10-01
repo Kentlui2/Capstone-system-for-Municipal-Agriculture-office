@@ -14,7 +14,7 @@ export default function Create() {
     const [currentStep, setCurrentStep] = useState(1);
 
     const { data, setData, post, processing, errors } = useForm({
-        name: '', description: '', aid_type: 'Seeds', allocated_quantity: '',
+        name: '', description: '', aid_type: 'Garden tools', allocated_quantity: '',
         unit: '', funding_source: '', start_date: '', end_date: '', status: 'active',
     });
 

@@ -93,7 +93,13 @@ export default function Create({ commodities }) {
                             </div>
                         )}
 
-                        <form onSubmit={submit} className="space-y-6">
+                        <form
+                            onSubmit={submit}
+                            className="space-y-6"
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && currentStep < 3) e.preventDefault();
+                            }}
+                        >
                             <ProfileForm
                                 data={data}
                                 setData={setData}

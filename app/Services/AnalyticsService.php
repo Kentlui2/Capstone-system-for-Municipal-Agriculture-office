@@ -29,21 +29,17 @@ class AnalyticsService
 
     /**
      * Metric 1 & 2: Aid coverage rate per barangay, plus most/least served.
-     * Uses withTrashed() on profiles since soft-deleted beneficiaries'
-     * historical aid still counts toward accurate coverage statistics.
      */
     public function coverageByBarangay(): array
     {
-        $barangays = Profile::withTrashed()
-            ->select('barangay')
+        $barangays = Profile::select('barangay')
             ->distinct()
             ->pluck('barangay');
 
         $coverage = $barangays->map(function ($barangay) {
-            $totalProfiles = Profile::withTrashed()->where('barangay', $barangay)->count();
+            $totalProfiles = Profile::where('barangay', $barangay)->count();
 
-            $servedProfiles = Profile::withTrashed()
-                ->where('barangay', $barangay)
+            $servedProfiles = Profile::where('barangay', $barangay)
                 ->whereHas('aidDistributions', function ($q) {
                     $q->when($this->programId, fn ($q) => $q->where('program_id', $this->programId))
                         ->when($this->startDate, fn ($q) => $q->whereDate('distribution_date', '>=', $this->startDate))

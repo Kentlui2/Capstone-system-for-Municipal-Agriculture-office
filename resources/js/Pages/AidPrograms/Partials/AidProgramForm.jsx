@@ -16,12 +16,18 @@ export default function AidProgramForm({ data, setData, errors, currentStep }) {
                     <div>
                         <label className="mb-1 block text-sm font-medium text-gray-700">Aid Type <span className="text-red-500">*</span></label>
                         <Select value={data.aid_type} onValueChange={(v) => setData('aid_type', v)}>
-                            <SelectItem value="Seeds">Seeds</SelectItem>
-                            <SelectItem value="Fertilizer">Fertilizer</SelectItem>
-                            <SelectItem value="Equipment">Equipment</SelectItem>
-                            <SelectItem value="Cash Incentive">Cash Incentive</SelectItem>
-                            <SelectItem value="Livelihood">Livelihood</SelectItem>
+                            <SelectItem value="Garden tools">Garden tools</SelectItem>
+                            <SelectItem value="Chemicals">Chemicals</SelectItem>
+                            <SelectItem value="Farm inputs">Farm inputs</SelectItem>
+                            <SelectItem value="Machineries and equipment">Machineries and equipment</SelectItem>
+                            <SelectItem value="Facilities">Facilities</SelectItem>
+                            <SelectItem value="Cash aid">Cash aid</SelectItem>
+                            <SelectItem value="Trainings">Trainings</SelectItem>
+                            <SelectItem value="IEC materials">IEC materials</SelectItem>
+                            <SelectItem value="Loan/Grants">Loan/Grants</SelectItem>
+                            <SelectItem value="Others">Others</SelectItem>
                         </Select>
+                        {errors.aid_type && <p className="mt-1 text-sm text-red-600">{errors.aid_type}</p>}
                     </div>
 
                     <div>

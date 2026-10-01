@@ -4,14 +4,55 @@ import { useState, useMemo } from 'react';
 import DataTable from '@/Components/DataTable';
 import Badge from '@/Components/Badge';
 import { BARANGAYS } from '@/constants/barangays';
-import { RiFilePdfLine, RiFileExcelLine, RiDownloadLine, RiSearchLine, RiFileTextLine } from '@remixicon/react';
+import { RiFilePdfLine, RiFileExcelLine, RiDownloadLine, RiSearchLine, RiFileTextLine, RiEyeLine, RiCloseLine } from '@remixicon/react';
 
 const sectorColor = { farmer: 'green', fisherfolk: 'blue', raiser: 'amber' };
+
+// ── PDF Preview Modal ─────────────────────────────────────────────────────────
+function PdfPreviewModal({ previewUrl, downloadUrl, title, onClose }) {
+    if (!previewUrl) return null;
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <div className="relative flex flex-col w-full max-w-5xl h-[90vh] bg-white rounded-2xl shadow-2xl overflow-hidden">
+                {/* Header */}
+                <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100 bg-gray-50 shrink-0">
+                    <div className="flex items-center gap-2">
+                        <RiFilePdfLine className="h-5 w-5 text-red-500" />
+                        <span className="text-sm font-semibold text-gray-800">{title}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <a
+                            href={downloadUrl}
+                            className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700 transition-colors"
+                        >
+                            <RiDownloadLine className="h-4 w-4" /> Download
+                        </a>
+                        <button
+                            onClick={onClose}
+                            className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-200 hover:text-gray-800 transition-colors"
+                        >
+                            <RiCloseLine className="h-5 w-5" />
+                        </button>
+                    </div>
+                </div>
+                {/* Preview iframe */}
+                <iframe
+                    src={previewUrl}
+                    className="flex-1 w-full"
+                    title="PDF Preview"
+                />
+            </div>
+        </div>
+    );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 export default function Index({ profiles }) {
     const [sector, setSector] = useState('');
     const [barangay, setBarangay] = useState('');
     const [searchProfile, setSearchProfile] = useState('');
+    const [preview, setPreview] = useState(null); // { previewUrl, downloadUrl, title }
 
     const filteredProfiles = useMemo(() => {
         if (!searchProfile.trim()) return profiles;
@@ -23,6 +64,22 @@ export default function Index({ profiles }) {
                 p.barangay.toLowerCase().includes(q)
         );
     }, [profiles, searchProfile]);
+
+    const openProfilePreview = (profile) => {
+        setPreview({
+            previewUrl: route('reports.profile-sheet-preview', profile.id),
+            downloadUrl: route('reports.profile-sheet', profile.id),
+            title: `${profile.first_name} ${profile.last_name} — Profile Sheet`,
+        });
+    };
+
+    const openBulkPreview = () => {
+        setPreview({
+            previewUrl: route('reports.bulk-pdf-preview', { sector, barangay }),
+            downloadUrl: route('reports.bulk-pdf', { sector, barangay }),
+            title: 'Beneficiary List Report',
+        });
+    };
 
     const columns = useMemo(() => [
         {
@@ -53,12 +110,12 @@ export default function Index({ profiles }) {
             header: 'Action',
             enableSorting: false,
             cell: (info) => (
-                <a
-                    href={route('reports.profile-sheet', info.row.original.id)}
+                <button
+                    onClick={() => openProfilePreview(info.row.original)}
                     className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600 hover:text-emerald-800"
                 >
-                    <RiDownloadLine className="h-4 w-4" /> Download PDF
-                </a>
+                    <RiEyeLine className="h-4 w-4" /> Preview PDF
+                </button>
             ),
         },
     ], []);
@@ -66,6 +123,16 @@ export default function Index({ profiles }) {
     return (
         <Sidebar header={<h2 className="text-xl font-semibold text-gray-800">Reports</h2>}>
             <Head title="Reports" />
+
+            {/* PDF Preview Modal */}
+            {preview && (
+                <PdfPreviewModal
+                    previewUrl={preview.previewUrl}
+                    downloadUrl={preview.downloadUrl}
+                    title={preview.title}
+                    onClose={() => setPreview(null)}
+                />
+            )}
 
             <div className="px-4 py-8 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-6xl space-y-8">
@@ -117,11 +184,18 @@ export default function Index({ profiles }) {
                         </div>
 
                         <div className="flex flex-wrap gap-3">
-                            <a
-                                href={route('reports.bulk-pdf', { sector, barangay })}
+                            <button
+                                onClick={openBulkPreview}
                                 className="flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 transition-colors"
                             >
-                                <RiFilePdfLine className="h-4 w-4" /> Download PDF Report
+                                <RiEyeLine className="h-4 w-4" /> Preview PDF Report
+                            </button>
+
+                            <a
+                                href={route('reports.bulk-pdf', { sector, barangay })}
+                                className="flex items-center gap-2 rounded-lg border border-emerald-600 px-4 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-50 transition-colors"
+                            >
+                                <RiFilePdfLine className="h-4 w-4" /> Download PDF
                             </a>
 
                             <a
@@ -139,7 +213,7 @@ export default function Index({ profiles }) {
                             <div>
                                 <h3 className="text-base font-semibold text-gray-900">Individual Profile Sheets</h3>
                                 <p className="text-xs text-gray-500">
-                                    Generate printable PDF summary sheets for individual beneficiaries.
+                                    Preview and print PDF summary sheets for individual beneficiaries.
                                 </p>
                             </div>
 

@@ -37,6 +37,18 @@ class ReportController extends Controller
         return $pdf->download("profile-{$profile->last_name}-{$profile->id}.pdf");
     }
 
+    /**
+     * Stream a single profile's PDF inline for browser preview.
+     */
+    public function profileSheetPreview(Profile $profile): Response
+    {
+        $profile->load(['sectorProfiles', 'commodities', 'aidDistributions.program']);
+
+        $pdf = Pdf::loadView('reports.profile-sheet', ['profile' => $profile]);
+
+        return $pdf->stream("profile-{$profile->last_name}-{$profile->id}.pdf");
+    }
+
     public function bulkPdf(Request $request)
     {
         $query = Profile::query()
@@ -63,6 +75,26 @@ class ReportController extends Controller
         ]);
 
         return $pdf->download('beneficiary-list.pdf');
+    }
+
+    /**
+     * Stream bulk PDF inline for browser preview.
+     */
+    public function bulkPdfPreview(Request $request)
+    {
+        $profiles = Profile::query()
+            ->when($request->sector, fn ($q) => $q->where('sector', $request->sector))
+            ->when($request->barangay, fn ($q) => $q->where('barangay', $request->barangay))
+            ->orderBy('last_name')
+            ->get();
+
+        $pdf = Pdf::loadView('reports.bulk-list', [
+            'profiles' => $profiles,
+            'sector' => $request->sector,
+            'barangay' => $request->barangay,
+        ]);
+
+        return $pdf->stream('beneficiary-list.pdf');
     }
 
     public function bulkExcel(Request $request)

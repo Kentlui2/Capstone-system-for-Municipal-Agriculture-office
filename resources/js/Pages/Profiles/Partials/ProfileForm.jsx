@@ -4,6 +4,8 @@ import SearchableSelect from '@/Components/SearchableSelect';
 import { BARANGAYS } from '@/constants/barangays';
 import { TextInput, Select, SelectItem } from '@tremor/react';
 
+const toTitleCase = (str) => str.replace(/\b\w/g, (c) => c.toUpperCase());
+
 export default function ProfileForm({ data, setData, errors, commodities, existingPhotoUrl, currentStep }) {
     const handleSectorChange = (newSector) => {
         setData({
@@ -27,7 +29,7 @@ export default function ProfileForm({ data, setData, errors, commodities, existi
                         <label className="mb-1 block text-sm font-medium text-gray-700">First Name <span className="text-red-500">*</span></label>
                         <TextInput
                             value={data.first_name}
-                            onValueChange={(v) => setData('first_name', v)}
+                            onValueChange={(v) => setData('first_name', toTitleCase(v))}
                             error={!!errors.first_name}
                             errorMessage={errors.first_name}
                             placeholder="e.g. Juan"
@@ -38,7 +40,7 @@ export default function ProfileForm({ data, setData, errors, commodities, existi
                         <label className="mb-1 block text-sm font-medium text-gray-700">Last Name <span className="text-red-500">*</span></label>
                         <TextInput
                             value={data.last_name}
-                            onValueChange={(v) => setData('last_name', v)}
+                            onValueChange={(v) => setData('last_name', toTitleCase(v))}
                             error={!!errors.last_name}
                             errorMessage={errors.last_name}
                             placeholder="e.g. Dela Cruz"

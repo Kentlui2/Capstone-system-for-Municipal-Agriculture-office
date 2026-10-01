@@ -1,5 +1,6 @@
 import Sidebar from '@/Layouts/Sidebar';
 import { Head, Link } from '@inertiajs/react';
+import { RiDownloadLine } from '@remixicon/react';
 
 export default function Show({ program, profiles }) {
     return (
@@ -33,9 +34,19 @@ export default function Show({ program, profiles }) {
                     </div>
 
                     <div className="bg-white p-6 shadow-sm sm:rounded-lg">
-                        <h3 className="mb-4 text-lg font-medium text-gray-800">
-                            Beneficiaries ({profiles.length})
-                        </h3>
+                        <div className="mb-4 flex items-center justify-between">
+                            <h3 className="text-lg font-medium text-gray-800">
+                                Beneficiaries ({profiles.length})
+                            </h3>
+                            {profiles.length > 0 && (
+                                <a
+                                    href={route('aid-programs.beneficiaries-pdf', program.id)}
+                                    className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700 transition-colors"
+                                >
+                                    <RiDownloadLine className="h-4 w-4" /> Download List
+                                </a>
+                            )}
+                        </div>
                         {profiles.length === 0 ? (
                             <p className="text-sm text-gray-500">No beneficiaries have received aid under this program yet.</p>
                         ) : (

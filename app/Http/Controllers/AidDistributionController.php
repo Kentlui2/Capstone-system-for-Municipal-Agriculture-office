@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreAidDistributionRequest;
 use App\Models\AidDistribution;
 use App\Models\AidProgram;
-use App\Models\Commodity;
 use App\Models\Profile;
 use App\Services\AidDistributionService;
 use Illuminate\Http\RedirectResponse;
@@ -33,7 +32,7 @@ public function index(): Response
             $sort = 'distribution_date';
         }
 
-        $distributions = AidDistribution::with(['profile' => fn ($q) => $q->withTrashed(), 'program', 'encoder'])
+        $distributions = AidDistribution::with(['profile', 'program', 'encoder'])
         ->when(request('program_id'), fn ($q, $programId) => $q->where('program_id', $programId))
         ->when(request('flagged') === 'duplicate', fn ($q) => $q->where('is_flagged', true))
         ->when(request('flagged') === 'over_allocation', fn ($q) => $q->where('exceeds_allocation', true))
@@ -57,9 +56,8 @@ public function index(): Response
         $this->authorize('create', AidDistribution::class);
 
         return Inertia::render('AidDistributions/Create', [
-            'profiles' => Profile::orderBy('last_name')->get(['id', 'first_name', 'last_name', 'sector']),
+            'profiles' => Profile::orderBy('last_name')->get(['id', 'first_name', 'last_name', 'sector', 'barangay']),
             'programs' => AidProgram::where('status', 'active')->get(),
-            'commodities' => Commodity::where('status', 'active')->get(['id', 'name', 'category']),
         ]);
     }
 
@@ -71,49 +69,77 @@ public function index(): Response
     public function store(StoreAidDistributionRequest $request): RedirectResponse
     {
         $validated = $request->validated();
-        $program = AidProgram::findOrFail($validated['program_id']);
+        $program   = AidProgram::findOrFail($validated['program_id']);
+        $profileIds = $validated['profile_ids'];
 
-        $warnings = $this->aidDistributionService->checkForWarnings(
-            $validated['profile_id'],
-            $program,
-            $validated['quantity']
-        );
+        // Use program defaults for fields removed from the form
+        $aidType  = $program->aid_type;
+        $quantity = $validated['quantity'] ?? 1;
+        $unit     = $validated['unit'] ?? $program->unit;
 
-        $needsDuplicateConfirmation = $warnings['is_duplicate'] && ! ($validated['confirmed_duplicate'] ?? false);
-        $needsAllocationConfirmation = $warnings['exceeds_allocation'] && ! ($validated['confirmed_over_allocation'] ?? false);
+        $warnings = [];
+        $needsConfirmation = false;
 
-        if ($needsDuplicateConfirmation || $needsAllocationConfirmation) {
-            // Don't save yet — send the warnings back so the frontend
-            // can show a confirmation dialog and resubmit if the
-            // Encoder chooses to proceed anyway (business rule 5:
-            // soft warning, never a hard block)
-            return back()->with('warnings', [
-                'is_duplicate' => $warnings['is_duplicate'],
-                'exceeds_allocation' => $warnings['exceeds_allocation'],
-                'remaining_quantity' => $program->remaining_quantity,
+        // Check warnings for ALL selected beneficiaries before saving any
+        foreach ($profileIds as $profileId) {
+            $check = $this->aidDistributionService->checkForWarnings(
+                (int) $profileId,
+                $program,
+                $quantity
+            );
+
+            $needsDuplicateConfirmation    = $check['is_duplicate'] && ! ($validated['confirmed_duplicate'] ?? false);
+            $needsAllocationConfirmation   = $check['exceeds_allocation'] && ! ($validated['confirmed_over_allocation'] ?? false);
+
+            if ($needsDuplicateConfirmation || $needsAllocationConfirmation) {
+                $needsConfirmation = true;
+                $warnings = [
+                    'is_duplicate'       => $check['is_duplicate'],
+                    'exceeds_allocation' => $check['exceeds_allocation'],
+                    'remaining_quantity' => $program->remaining_quantity,
+                ];
+                break; // Surface the first warning found
+            }
+        }
+
+        if ($needsConfirmation) {
+            return back()->with('warnings', $warnings);
+        }
+
+        // Save one distribution record per beneficiary
+        foreach ($profileIds as $profileId) {
+            $check = $this->aidDistributionService->checkForWarnings(
+                (int) $profileId,
+                $program,
+                $quantity
+            );
+
+            AidDistribution::create([
+                'profile_id'         => $profileId,
+                'program_id'         => $validated['program_id'],
+                'commodity_id'       => $validated['commodity_id'] ?? null,
+                'aid_type'           => $aidType,
+                'description'        => $validated['description'] ?? null,
+                'quantity'           => $quantity,
+                'unit'               => $unit,
+                'distribution_date'  => $validated['distribution_date'],
+                'remarks'            => $validated['remarks'] ?? null,
+                'encoded_by'         => $request->user()->id,
+                'is_flagged'         => $check['is_duplicate'],
+                'exceeds_allocation' => $check['exceeds_allocation'],
             ]);
         }
 
-        AidDistribution::create([
-            'profile_id' => $validated['profile_id'],
-            'program_id' => $validated['program_id'],
-            'commodity_id' => $validated['commodity_id'] ?? null,
-            'aid_type' => $validated['aid_type'],
-            'description' => $validated['description'] ?? null,
-            'quantity' => $validated['quantity'],
-            'unit' => $validated['unit'],
-            'distribution_date' => $validated['distribution_date'],
-            'remarks' => $validated['remarks'] ?? null,
-            'encoded_by' => $request->user()->id,
-            'is_flagged' => $warnings['is_duplicate'],
-            'exceeds_allocation' => $warnings['exceeds_allocation'],
-        ]);
-
         \Illuminate\Support\Facades\Cache::forget('dashboard:stats');
+
+        $count = count($profileIds);
+        $message = $count === 1
+            ? 'Aid distribution recorded successfully.'
+            : "{$count} aid distributions recorded successfully.";
 
         return redirect()
             ->route('aid-distributions.index')
-            ->with('success', 'Aid distribution recorded successfully.');
+            ->with('success', $message);
     }
 
     /**
@@ -123,7 +149,7 @@ public function index(): Response
     {
         $this->authorize('view', $aidDistribution);
 
-        $aidDistribution->load(['profile' => fn ($q) => $q->withTrashed(), 'program', 'encoder']);
+        $aidDistribution->load(['profile', 'program', 'encoder']);
         return Inertia::render('AidDistributions/Show', [
             'distribution' => $aidDistribution,
         ]);

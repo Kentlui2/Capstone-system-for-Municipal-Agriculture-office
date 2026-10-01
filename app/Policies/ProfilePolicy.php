@@ -40,17 +40,9 @@ class ProfilePolicy
     }
 
     /**
-     * Only Admin can delete (soft-delete) profiles.
+     * Only Admin can delete profiles.
      */
     public function delete(User $user, Profile $profile): bool
-    {
-        return $user->isAdmin();
-    }
-
-    /**
-     * Only Admin can restore a soft-deleted profile.
-     */
-    public function restore(User $user, Profile $profile): bool
     {
         return $user->isAdmin();
     }

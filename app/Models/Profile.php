@@ -3,12 +3,25 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Profile extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+
+    protected static function booted(): void
+    {
+        static::deleting(function (Profile $profile) {
+            if ($profile->photo_path && Storage::disk('public')->exists($profile->photo_path)) {
+                Storage::disk('public')->delete($profile->photo_path);
+            }
+
+            $profile->sectorProfiles()->delete();
+            $profile->commodities()->detach();
+            $profile->aidDistributions()->delete();
+        });
+    }
 
     protected $fillable = [
         'first_name',

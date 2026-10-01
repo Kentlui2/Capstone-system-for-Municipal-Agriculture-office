@@ -18,7 +18,7 @@ class StoreAidProgramRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'aid_type' => ['required', Rule::in(['Seeds', 'Fertilizer', 'Equipment', 'Cash Incentive', 'Livelihood'])],
+            'aid_type' => ['required', Rule::in(['Garden tools', 'Chemicals', 'Farm inputs', 'Machineries and equipment', 'Facilities', 'Cash aid', 'Trainings', 'IEC materials', 'Loan/Grants', 'Others'])],
             'allocated_quantity' => ['required', 'numeric', 'min:0.01'],
             'unit' => ['required', 'string', 'max:50'],
             'funding_source' => ['nullable', 'string', 'max:255'],

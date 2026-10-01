@@ -15,20 +15,22 @@ class StoreAidDistributionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'profile_id' => ['required', 'exists:profiles,id'],
-            'program_id' => ['required', 'exists:aid_programs,id'],
-            'commodity_id' => ['nullable', 'exists:commodities,id'],
-            'aid_type' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string', 'max:255'],
-            'quantity' => ['required', 'numeric', 'min:0.01'],
-            'unit' => ['required', 'string', 'max:50'],
-            'distribution_date' => ['required', 'date'],
-            'remarks' => ['nullable', 'string'],
+            'profile_ids'   => ['required', 'array', 'min:1'],
+            'profile_ids.*' => ['required', 'exists:profiles,id'],
+            'program_id'    => ['required', 'exists:aid_programs,id'],
 
-            // These come from the frontend AFTER the user has seen a
-            // warning and explicitly confirmed they want to proceed
-            // despite a duplicate or over-allocation flag
-            'confirmed_duplicate' => ['sometimes', 'boolean'],
+            // Removed from form — kept nullable for backwards compat / offline sync
+            'commodity_id'  => ['nullable', 'exists:commodities,id'],
+            'aid_type'      => ['nullable', 'string', 'max:255'],
+            'quantity'      => ['nullable', 'numeric', 'min:0.01'],
+            'unit'          => ['nullable', 'string', 'max:50'],
+
+            'description'   => ['nullable', 'string', 'max:255'],
+            'distribution_date' => ['required', 'date'],
+            'remarks'       => ['nullable', 'string'],
+
+            // Confirmation flags sent by frontend after seeing a warning
+            'confirmed_duplicate'       => ['sometimes', 'boolean'],
             'confirmed_over_allocation' => ['sometimes', 'boolean'],
         ];
     }
