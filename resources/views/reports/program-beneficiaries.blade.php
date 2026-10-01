@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
@@ -20,29 +20,29 @@
 </head>
 <body>
     <h1>Aid Program Beneficiary List</h1>
-    <h2>{{ ->name }}</h2>
+    <h2>{{ $program->name }}</h2>
     <p class="subtitle">Municipal Agriculture Office — Sta. Cruz, Davao del Sur</p>
 
     <div class="meta-grid">
         <div class="meta-item">
             <label>Aid Type</label>
-            <span>{{ ->aid_type }}</span>
+            <span>{{ $program->aid_type }}</span>
         </div>
         <div class="meta-item">
             <label>Status</label>
-            <span>{{ ucfirst(->status) }}</span>
+            <span>{{ ucfirst($program->status) }}</span>
         </div>
         <div class="meta-item">
             <label>Funding Source</label>
-            <span>{{ ->funding_source ?: '—' }}</span>
+            <span>{{ $program->funding_source ?: '—' }}</span>
         </div>
         <div class="meta-item">
             <label>Total Beneficiaries</label>
-            <span>{{ ->count() }}</span>
+            <span>{{ $beneficiaries->count() }}</span>
         </div>
     </div>
 
-    @if(->isEmpty())
+    @if($beneficiaries->isEmpty())
         <p class="no-data">No beneficiaries have received aid under this program yet.</p>
     @else
         <table>
@@ -56,13 +56,13 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach( as  => C:\Users\KEN LUI\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1)
+                @foreach($beneficiaries as $index => $profile)
                     <tr>
-                        <td>{{  + 1 }}</td>
-                        <td>{{ C:\Users\KEN LUI\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1->first_name }} {{ C:\Users\KEN LUI\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1->last_name }}</td>
-                        <td style="text-transform: capitalize;">{{ C:\Users\KEN LUI\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1->sector }}</td>
-                        <td>{{ C:\Users\KEN LUI\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1->barangay }}</td>
-                        <td>{{ C:\Users\KEN LUI\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1->contact_number ?: '—' }}</td>
+                        <td>{{ $index + 1 }}</td>
+                        <td>{{ $profile->first_name }} {{ $profile->last_name }}</td>
+                        <td style="text-transform: capitalize;">{{ $profile->sector }}</td>
+                        <td>{{ $profile->barangay }}</td>
+                        <td>{{ $profile->contact_number ?: '—' }}</td>
                     </tr>
                 @endforeach
             </tbody>
@@ -70,7 +70,7 @@
     @endif
 
     <p class="footer">
-        Generated on {{ now()->format('F j, Y g:i A') }} &middot; {{ ->count() }} beneficiar{{ ->count() === 1 ? 'y' : 'ies' }}
+        Generated on {{ now()->format('F j, Y g:i A') }} &middot; {{ $beneficiaries->count() }} {{ $beneficiaries->count() === 1 ? 'beneficiary' : 'beneficiaries' }}
     </p>
 </body>
 </html>
