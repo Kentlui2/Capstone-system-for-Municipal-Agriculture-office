@@ -49,6 +49,15 @@ export default function SearchableSelect({ value, onChange, options, placeholder
                         placeholder="Search..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (filteredOptions.length > 0) {
+                                    selectOption(filteredOptions[0]);
+                                }
+                            }
+                        }}
                         className="w-full border-b border-gray-200 px-3 py-2 text-sm focus:outline-none"
                     />
                     <ul className="max-h-48 overflow-y-auto">

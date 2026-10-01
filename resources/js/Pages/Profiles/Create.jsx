@@ -32,16 +32,33 @@ export default function Create({ commodities }) {
     const [offlineMessage, setOfflineMessage] = useState(null);
     const [submittingOffline, setSubmittingOffline] = useState(false);
 
-    const handleNext = () => {
+    const handleNext = (e) => {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
         if (currentStep < 3) setCurrentStep((prev) => prev + 1);
     };
 
-    const handlePrev = () => {
+    const handlePrev = (e) => {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
         if (currentStep > 1) setCurrentStep((prev) => prev - 1);
     };
 
     const submit = async (e) => {
-        e.preventDefault();
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        // STRICT GUARD: Form cannot be submitted unless on Step 3
+        if (currentStep < 3) {
+            handleNext();
+            return;
+        }
 
         const online = await isActuallyOnline();
 
@@ -97,7 +114,12 @@ export default function Create({ commodities }) {
                             onSubmit={submit}
                             className="space-y-6"
                             onKeyDown={(e) => {
-                                if (e.key === 'Enter' && currentStep < 3) e.preventDefault();
+                                if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    if (currentStep < 3) {
+                                        handleNext();
+                                    }
+                                }
                             }}
                         >
                             <ProfileForm

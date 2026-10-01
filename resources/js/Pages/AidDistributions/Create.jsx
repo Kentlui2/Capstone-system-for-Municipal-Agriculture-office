@@ -139,7 +139,16 @@ export default function Create({ profiles, programs }) {
     }, [flash.warnings]);
 
     const submit = async (e) => {
-        e.preventDefault();
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        if (currentStep < 2) {
+            setCurrentStep(2);
+            return;
+        }
+
         const online = await isActuallyOnline();
         if (!online) {
             setSubmittingOffline(true);
@@ -197,7 +206,16 @@ export default function Create({ profiles, programs }) {
                             </div>
                         )}
 
-                        <form onSubmit={submit} className="space-y-4">
+                        <form
+                            onSubmit={submit}
+                            className="space-y-4"
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    if (currentStep < 2) setCurrentStep(2);
+                                }
+                            }}
+                        >
                             {currentStep === 1 && (
                                 <div className="space-y-4">
                                     <div>

@@ -7,9 +7,9 @@ use App\Http\Requests\UpdateAidProgramRequest;
 use App\Models\AidProgram;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Response;
+use Illuminate\Http\Response as HttpResponse;
 use Inertia\Inertia;
-use Inertia\Response as InertiaResponse;
+use Inertia\Response;
 
 class AidProgramController extends Controller
 {
@@ -17,7 +17,7 @@ class AidProgramController extends Controller
      * List all aid programs — both roles can view (Encoders need
      * this to select a program when recording distributions).
      */
-   public function index(): Response
+    public function index(): Response
     {
         $this->authorize('viewAny', AidProgram::class);
 
@@ -103,19 +103,20 @@ class AidProgramController extends Controller
             ->with('success', 'Aid program removed successfully.');
     }
 
-    public function show(AidProgram $aidProgram): InertiaResponse
+    public function show(AidProgram $aidProgram): Response
     {
         $this->authorize('view', $aidProgram);
 
         $aidProgram->load(['distributions.profile']);
 
         // Unique profiles who received aid under this program —
-    // a profile could appear multiple times in distributions
-    // (different dates/quantities), but should only be listed once here
-    $profiles = $aidProgram->distributions
-        ->pluck('profile')
-        ->unique('id')
-        ->values();
+        // a profile could appear multiple times in distributions
+        // (different dates/quantities), but should only be listed once here
+        $profiles = $aidProgram->distributions
+            ->pluck('profile')
+            ->filter()
+            ->unique('id')
+            ->values();
 
         return Inertia::render('AidPrograms/Show', [
             'program' => $aidProgram,
@@ -126,7 +127,7 @@ class AidProgramController extends Controller
     /**
      * Download a PDF of all unique beneficiaries for this program.
      */
-    public function beneficiariesPdf(AidProgram $aidProgram): Response
+    public function beneficiariesPdf(AidProgram $aidProgram): HttpResponse
     {
         $this->authorize('view', $aidProgram);
 
@@ -140,8 +141,8 @@ class AidProgramController extends Controller
             ->values();
 
         $pdf = Pdf::loadView('reports.program-beneficiaries', [
-            'program'  => $aidProgram,
-            'profiles' => $profiles,
+            'program'       => $aidProgram,
+            'beneficiaries' => $profiles,
         ]);
 
         $safeName = preg_replace('/[^a-z0-9]+/i', '-', $aidProgram->name);
